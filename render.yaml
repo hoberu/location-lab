@@ -1,0 +1,8 @@
+services:
+  - type: web
+    name: location-lab-pro-private-beta
+    env: docker
+    plan: free
+    envVars:
+      - key: BETA_PASSCODE
+        value: ""
