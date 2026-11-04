@@ -72,9 +72,9 @@
           <div class="flex items-center gap-2 flex-wrap">
             <h1 class="text-base sm:text-lg font-bold tracking-tight">수도권 입지 랩</h1>
             <span class="hidden sm:inline text-[11px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 font-medium">공공데이터 기반</span>
-            <span class="hidden sm:inline text-[11px] px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-400/30 font-medium">가족·시설 맞춤 & 초보 안전가이드</span>
+            <span class="hidden sm:inline text-[11px] px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-400/30 font-medium">첫 집 마련 자금 계산</span>
           </div>
-          <p class="text-xs text-slate-400 hidden sm:block">가족 구성·아이 나이·선호 시설 선택만으로 끝나는 서울·경기 입지 순위 & 정책자금·갈아타기 시뮬레이터</p>
+          <p class="text-xs text-slate-400 hidden sm:block">현금·소득·부모님 지원을 넣으면 대출·세금까지 따져 살 수 있는 집값과 동네를 알려드려요</p>
         </div>
       </div>
 
@@ -91,9 +91,8 @@
         </button>
 
         <!-- Beginner Easy Mode vs Expert Mode Switch -->
-        <button type="button" id="toggleEasyModeBtn" class="px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs shadow-sm transition flex items-center gap-1.5">
-          <span>🌱 초보 간편 화면 ON</span>
-          <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-900/20 text-slate-950 font-bold">전문가 메뉴 숨김중</span>
+        <button type="button" id="toggleEasyModeBtn" class="px-3 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs shadow-sm transition flex items-center gap-1.5">
+          <span>🔬 전문가 메뉴 보기</span>
         </button>
 
         <!-- Monthly Usage Credit Meter (SaaS Demo) -->
@@ -110,23 +109,23 @@
           <button id="tabBtnQuick" class="px-2 py-1.5 rounded-md bg-amber-400 text-slate-950 font-bold transition">
             🏠 한눈에 결론
           </button>
-          <button id="tabBtnLanding" class="px-2 py-1.5 rounded-md text-indigo-300 hover:text-white transition">
+          <button id="tabBtnLanding" class="admin-only hidden px-2 py-1.5 rounded-md text-indigo-300 hover:text-white transition">
             🚀 서비스 소개 & 튜토리얼
           </button>
           <button id="tabBtnRanking" class="px-2 py-1.5 rounded-md text-slate-300 hover:text-white transition">
-            입지 순위 & 자산 매칭
+            동네 순위
           </button>
           <button id="tabBtnPolicy" class="px-2 py-1.5 rounded-md text-rose-300 hover:text-white transition">
-            🏛️ 정책·특례대출 & 초보안전
+            부모님 지원·대출·세금
           </button>
           <button id="tabBtnMapTx" class="px-2 py-1.5 rounded-md text-sky-300 hover:text-white transition">
-            🗺️ 지도 & 실거래 페이지
+            실거래
           </button>
           <button id="tabBtnTransfer" class="px-2 py-1.5 rounded-md text-emerald-300 hover:text-white transition">
-            갈아타기 & 단지별 미세입지
+            갈아타기
           </button>
           <button id="tabBtnMatrix" class="expert-only-ui hidden px-2 py-1.5 rounded-md text-slate-300 hover:text-white transition">
-            저평가 매트릭스 (가성비 맵)
+            가성비 맵
           </button>
           <button id="tabBtnGuide" class="admin-only hidden px-2 py-1.5 rounded-md text-slate-300 hover:text-white transition">
             입지 분석 원리 & 출처
@@ -1457,7 +1456,7 @@
       </div>
 
       <!-- Section 6 (NEW Phase 12-B): Anti-Hogu Realtor Negotiation Target Price & Script Generator -->
-      <div id="negotiationScriptSection" class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-4 text-xs">
+      <div id="negotiationScriptSection" class="admin-only hidden bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-4 text-xs">
         <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
           <div>
             <span class="px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800 text-xs font-bold">중개소 가서 기죽지 않는 실전 무기</span>
@@ -3087,6 +3086,7 @@
       const bankSrc = PolicyEngine.dataSources(new Date().toLocaleDateString('sv'))[0];
       document.getElementById('qFootnote').textContent =
         `정책 기준일 ${date} · 은행 주담대 ${bankSrc.value}(${bankSrc.kind === 'auto' ? `${bankSrc.source.split(' · ')[0]} ${bankSrc.asOf}` : '가정값'}) · 생애최초 여부·주택 보유 등 세부 조건은 '부모님 지원·정책 자세히'에서 바꿀 수 있어요. ` +
+        '은행 대출 한도는 변동금리 기준(가장 보수적)이라 혼합형·주기형 상품은 최대 20%쯤 더 나올 수 있어요. ' +
         '입지 점수는 자체 평가이며, 실제 대출 한도와 세금은 은행·세무사 확인이 필요합니다.';
     }
 
@@ -5564,11 +5564,11 @@
             else saasMeterBox.classList.remove('hidden');
           }
           if (isEasyMode) {
-            easyModeBtn.className = 'px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs shadow-sm transition flex items-center gap-1.5';
-            easyModeBtn.innerHTML = '<span>🌱 초보 간편 화면 ON</span><span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-900/20 text-slate-950 font-bold">전문가 메뉴 숨김중</span>';
+            easyModeBtn.className = 'px-3 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs shadow-sm transition flex items-center gap-1.5';
+            easyModeBtn.innerHTML = '<span>🔬 전문가 메뉴 보기</span>';
           } else {
             easyModeBtn.className = 'px-3 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-white font-extrabold text-xs shadow-sm transition flex items-center gap-1.5';
-            easyModeBtn.innerHTML = '<span>🔬 전문가 전체 메뉴 ON</span><span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/30 text-emerald-200 font-bold">모든 슬라이더·차트 표시중</span>';
+            easyModeBtn.innerHTML = '<span>🌱 간단히 보기</span>';
             if (radarChartInstance) radarChartInstance.resize();
           }
         });

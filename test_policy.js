@@ -55,6 +55,20 @@ assert.strictEqual(bank(10, base).amount, 4);
 const dsr = Math.round(E.bankDsrMax(base, D) * 10) / 10;
 assert.ok(dsr > 4 && dsr < 6, `DSR 한도 ${dsr}`);
 assert.strictEqual(bank(12, ft).amount, dsr);
+// 금융위 10·15 대책 시뮬레이션과 대조: 소득 5천만·금리 4%·30년·원리금균등·스트레스 3%
+{
+  const b0 = E.POLICY.bankLoan[0], keep = b0.rate;
+  b0.rate = 0.04;
+  const f5 = { ...base, income: 5000 };
+  near(E.bankDsrMax(f5, D), 2.51, '변동형 DSR 한도(금융위 2억5100만)');
+  near(E.bankDsrMax({ ...f5, rateType: 'mixed' }, D), 2.66, '혼합형 DSR 한도(금융위 2억6600만)');
+  near(E.bankDsrMax({ ...f5, rateType: 'periodic' }, D), 3.04, '주기형 DSR 한도(금융위 3억400만)');
+  near(E.bankDsrMax({ ...base, income: 10000 }, D), 5.01, '소득 1억 변동형(금융위 5억100만)');
+  b0.rate = keep;
+}
+// 증여세 과세최저한 50만 원 미만 0원, 3억 전액 증여(공제 5천) 3,880만 원
+assert.strictEqual(E.giftTax(0.004, D), 0);
+near(E.giftTax(2.5, D), 0.388, '증여세 3억(과표 2.5억)');
 // 기존 대출 월상환이 있으면 DSR 한도 감소
 assert.ok(E.bankDsrMax({ ...base, otherDebtMonthly: 100 }, D) < E.bankDsrMax(base, D));
 

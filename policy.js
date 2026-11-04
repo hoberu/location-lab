@@ -54,7 +54,10 @@
         capByPrice: [[15, 6], [25, 4], [Infinity, 2]],   // 수도권·규제지역: 시가 구간별 한도(억)
         capNormal: 6,                                      // 수도권 비규제 최대 6억
         dsr: 0.40,
-        stressAdd: 0.03,   // 수도권·규제지역 스트레스 금리 3.0%(100% 반영). 21년 이상 고정형은 미적용
+        stressAdd: 0.03,   // 수도권·규제지역 스트레스 금리 하한 3.0%(10·15 대책)
+        // 금리 유형별 반영 비율(3단계 스트레스 DSR): 변동형 100%, 혼합형 80%, 주기형 40%. 21년 이상 고정형은 미적용
+        // 금융위 10·15 시뮬레이션(소득 5천만·금리 4%·30년): 변동 2.51억 · 혼합 2.66억 · 주기 3.04억과 일치 (test_policy.js)
+        stressShare: { variable: 1, mixed: 0.8, periodic: 0.4 },
         rate: 0.048,       // 기본값. policy_live.json(한국은행 ECOS 주담대 평균금리)이 있으면 그 값으로 바뀜
         years: 30, moveInMonths: 6,
         src: '6·27·9·7·10·15 대책, 8·13 금융 종합대책(2026)에서 유지 확인 · 스트레스 DSR 2026 하반기' },
@@ -246,11 +249,17 @@
     return r4(price * (rule.brokerage(price) + rule.legalRatio));
   }
 
+  // 은행 주담대 DSR 계산에 더하는 스트레스 금리. f.rateType 없으면 변동형(가장 보수적)
+  function stressRate(f, date) {
+    const bank = pick(POLICY.bankLoan, date);
+    return bank.stressAdd * (bank.stressShare[f.rateType] ?? 1);
+  }
+
   // 은행 주담대의 DSR 한도(스트레스 금리 가산, 기존 대출 월상환 차감)
   function bankDsrMax(f, date) {
     const bank = pick(POLICY.bankLoan, date);
     const room = Math.max(0, (f.income / 10000) * bank.dsr / 12 - (f.otherDebtMonthly || 0) / 10000);
-    return principalFromPayment(room, bank.rate + bank.stressAdd, bank.years);
+    return principalFromPayment(room, bank.rate + stressRate(f, date), bank.years);
   }
 
   // 가격과 무관한 은행 대출 최대치 (최고 구간 한도와 DSR 중 작은 값)
@@ -315,7 +324,7 @@
 
   function giftTax(taxable, date) {
     const g = pick(POLICY.gift, date);
-    if (taxable <= 0) return 0;
+    if (taxable < 0.005) return 0;   // 과세표준 50만 원 미만은 부과하지 않음 (상증법 제55조②)
     const [, rate, deduct] = g.brackets.find(([upto]) => taxable <= upto);
     return r4((taxable * rate - deduct) * (1 - g.filingCredit));
   }
@@ -389,7 +398,7 @@
     return POLICY.tips.filter(t => t.when(f, p, c)).map(t => ({ kind: t.kind, title: t.title, body: t.body(c), src: t.src }));
   }
 
-  const api = { POLICY, tipsFor, applyLive, dataSources, pick, isRegulated, isToheoje, acqTax, fees, bankDsrMax, loanCeiling, loanOptions, bestLoan, cashNeeded, maxPrice,
+  const api = { POLICY, tipsFor, applyLive, dataSources, pick, isRegulated, isToheoje, acqTax, fees, bankDsrMax, stressRate, loanCeiling, loanOptions, bestLoan, cashNeeded, maxPrice,
     giftTax, parentPlan, monthlyPayment, principalFromPayment };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.PolicyEngine = api;

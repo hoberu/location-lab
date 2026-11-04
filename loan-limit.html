@@ -46,6 +46,12 @@
         </select></label>
       <label class="space-y-1"><span class="block text-xs font-semibold text-slate-600">기존 대출 월 상환액</span>
         <span class="flex items-center gap-1"><input id="debt" type="number" inputmode="numeric" min="0" step="10" value="0" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 font-bold" /><span class="text-slate-500">만원</span></span></label>
+      <label class="space-y-1 col-span-2"><span class="block text-xs font-semibold text-slate-600">금리 유형</span>
+        <select id="rateType" class="w-full rounded-lg border border-slate-300 px-2 py-2 bg-white font-bold">
+          <option value="variable">변동형 (스트레스 금리 100% 반영)</option>
+          <option value="mixed">혼합형 — 5년 고정 후 변동 (80% 반영)</option>
+          <option value="periodic">주기형 — 5년마다 금리 재산정 (40% 반영)</option>
+        </select></label>
       <label class="flex items-center gap-2 col-span-2"><input id="first" type="checkbox" checked class="accent-indigo-600" /> 무주택 생애최초 (세대원 전원 집을 가져본 적 없음)</label>
     </section>
 
@@ -71,12 +77,13 @@
       <ul class="list-disc pl-5 space-y-1">
         <li><strong>LTV:</strong> 규제지역은 무주택 40%, 생애최초 70%. 비규제 수도권은 70%입니다.</li>
         <li><strong>구간 한도(수도권·규제지역):</strong> 집값 15억 이하 6억, 15억 초과~25억 4억, 25억 초과 2억.</li>
-        <li><strong>DSR 40%:</strong> 모든 대출의 연 원리금이 연소득의 40%를 넘으면 안 됩니다. 이때 실제 금리에 <strong>스트레스 금리 3%p</strong>를 더해 계산하므로 한도가 줄어듭니다(21년 이상 고정금리는 제외).</li>
+        <li><strong>DSR 40%:</strong> 모든 대출의 연 원리금이 연소득의 40%를 넘으면 안 됩니다. 이때 실제 금리에 <strong>스트레스 금리</strong>를 더해 계산하므로 한도가 줄어듭니다. 수도권·규제지역은 3%p가 기준이고, 변동형은 전부, 혼합형(5년 고정)은 80%(2.4%p), 주기형(5년)은 40%(1.2%p)만 더합니다. 21년 이상 고정금리는 더하지 않습니다.</li>
         <li><strong>조건:</strong> 6개월 안에 전입해야 하고, 1주택자는 6개월 안에 기존 집을 처분해야 합니다.</li>
       </ul>
       <h2 class="text-lg font-bold text-slate-900">자주 묻는 질문</h2>
       <p><strong>Q. 정책대출(디딤돌·신생아 특례·보금자리론)과 같이 받을 수 있나요?</strong><br>보통 하나만 받습니다. 집값·소득 조건이 맞으면 정책대출이 금리는 낮지만 한도가 작을 수 있어, 위 계산기는 조건이 맞는 상품도 함께 보여줍니다.</p>
       <p><strong>Q. 연봉이 높으면 15억 넘는 집도 6억까지 되나요?</strong><br>아닙니다. 15억 초과~25억은 소득과 관계없이 최대 4억, 25억 초과는 2억이 상한입니다.</p>
+      <p><strong>Q. 금리 유형에 따라 한도가 왜 다른가요?</strong><br>스트레스 금리를 더하는 비율이 달라서입니다. 금융위원회 예시(연소득 5천만 원·금리 4%·30년)로는 변동형 2억 5,100만 원, 혼합형 2억 6,600만 원, 주기형 3억 400만 원으로, 같은 소득이라도 주기형이 약 20% 더 나옵니다. 위 계산기도 같은 결과가 나옵니다.</p>
       <p><strong>Q. 금리는 무엇을 기준으로 계산하나요?</strong><br>한국은행이 매달 발표하는 예금은행 주택담보대출 평균금리(신규취급액)를 자동으로 받아 씁니다. 실제 금리는 은행·상품마다 다릅니다.</p>
     </section>
   </main>
@@ -96,7 +103,7 @@
       const price = Math.max(0.5, Number($('price').value) || 0);
       const reg = $('region').value === 'reg';
       const f = { homes: 0, firstTime: $('first').checked, married: 'single', children: 0, newborn2y: false, dualIncome: false,
-                  income: Number($('income').value) || 0, otherDebtMonthly: Number($('debt').value) || 0, assets: 0 };
+                  income: Number($('income').value) || 0, otherDebtMonthly: Number($('debt').value) || 0, assets: 0, rateType: $('rateType').value };
       const bank = PolicyEngine.pick(PolicyEngine.POLICY.bankLoan, today);
       const ltv = bank.ltv[reg ? 'regulated' : 'normal'][f.firstTime ? 'first' : 'none'];
       const cap = reg ? bank.capByPrice.find(([upto]) => price <= upto)[1] : bank.capNormal;
@@ -104,7 +111,7 @@
       const rows = [
         ['LTV ' + Math.round(ltv * 100) + '%', r1(price * ltv), `집값 ${price}억 × ${Math.round(ltv * 100)}%`],
         ['집값 구간 한도', cap, reg ? '15억 이하 6억 · 25억 이하 4억 · 초과 2억' : '수도권 최대 6억'],
-        ['DSR 40%', dsr, `금리 ${(bank.rate * 100).toFixed(2)}% + 스트레스 ${(bank.stressAdd * 100).toFixed(1)}%p, 30년 기준`],
+        ['DSR 40%', dsr, `금리 ${(bank.rate * 100).toFixed(2)}% + 스트레스 ${(PolicyEngine.stressRate(f, today) * 100).toFixed(1)}%p, 30년 기준`],
       ];
       const loan = Math.min(...rows.map(r => r[1]));
       const bind = rows.find(r => r[1] === loan)[0];
