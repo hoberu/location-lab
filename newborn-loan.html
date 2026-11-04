@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>신생아 특례대출 자격·한도 계산기 2026 — 구입자금(디딤돌) | 수도권 입지 랩</title>
+  <meta name="description" content="신생아 특례 디딤돌(주택구입) 대출을 받을 수 있는지 소득·순자산·집값·면적 조건을 하나씩 확인하고, 받을 수 있는 한도와 월 상환액을 계산합니다." />
+  <link rel="canonical" href="https://hoberu.github.io/location-lab/newborn-loan.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="ko_KR" />
+  <meta property="og:site_name" content="수도권 입지 랩" />
+  <meta property="og:title" content="신생아 특례대출 자격·한도 계산기 2026" />
+  <meta property="og:description" content="소득 1.3억(맞벌이 2억)·순자산·집값 9억·85㎡ 조건을 확인하고 한도와 월 상환액을 계산합니다." />
+  <meta property="og:url" content="https://hoberu.github.io/location-lab/newborn-loan.html" />
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="policy.js"></script>
+  <script src="site.js"></script>
+</head>
+<body class="bg-slate-50 text-slate-800">
+  <header class="bg-slate-900 text-white">
+    <div class="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between gap-2">
+      <a href="./" class="font-bold">수도권 입지 랩</a>
+      <a href="./" class="text-xs px-2.5 py-1.5 rounded-lg bg-amber-400 text-slate-950 font-bold">내 돈으로 어디까지 살까? →</a>
+    </div>
+  </header>
+
+  <main class="max-w-3xl mx-auto px-4 py-6 space-y-5">
+    <div>
+      <h1 class="text-2xl font-extrabold text-slate-900">신생아 특례대출 자격·한도 계산기 (2026)</h1>
+      <p class="text-sm text-slate-600 mt-1">주택도시기금 신생아 특례 디딤돌(집 살 때 받는 구입자금) 대출을 받을 수 있는지 조건을 하나씩 확인하고 한도를 계산합니다.</p>
+    </div>
+
+    <section class="bg-white rounded-xl border border-slate-200 p-4 grid grid-cols-2 gap-3 text-sm">
+      <label class="space-y-1"><span class="block text-xs font-semibold text-slate-600">부부 합산 연소득(세전)</span>
+        <span class="flex items-center gap-1"><input id="income" type="number" inputmode="numeric" min="0" step="100" value="9000" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 font-bold" /><span class="text-slate-500">만원</span></span></label>
+      <label class="space-y-1"><span class="block text-xs font-semibold text-slate-600">부부 합산 순자산</span>
+        <span class="flex items-center gap-1"><input id="assets" type="number" inputmode="decimal" min="0" step="0.1" value="3" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 font-bold" /><span class="text-slate-500">억</span></span></label>
+      <label class="space-y-1"><span class="block text-xs font-semibold text-slate-600">살 집 가격</span>
+        <span class="flex items-center gap-1"><input id="price" type="number" inputmode="decimal" min="1" step="0.1" value="7" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 font-bold" /><span class="text-slate-500">억</span></span></label>
+      <label class="space-y-1"><span class="block text-xs font-semibold text-slate-600">전용면적</span>
+        <select id="area" class="w-full rounded-lg border border-slate-300 px-2 py-2 bg-white font-bold">
+          <option value="84">85㎡ 이하 (국민평형 84㎡ 등)</option>
+          <option value="114">85㎡ 초과</option>
+        </select></label>
+      <label class="flex items-center gap-2"><input id="born" type="checkbox" checked class="accent-indigo-600" /> 대출 신청일 기준 2년 안에 출산·입양</label>
+      <label class="flex items-center gap-2"><input id="homeless" type="checkbox" checked class="accent-indigo-600" /> 무주택 세대</label>
+      <label class="flex items-center gap-2"><input id="dual" type="checkbox" class="accent-indigo-600" /> 맞벌이 (각자 소득 1.3억 이하)</label>
+      <label class="flex items-center gap-2"><input id="first" type="checkbox" checked class="accent-indigo-600" /> 생애최초</label>
+    </section>
+
+    <section class="bg-slate-900 text-white rounded-xl p-5 space-y-2">
+      <div id="outVerdict" class="text-xs text-slate-300">—</div>
+      <div id="outLoan" class="text-4xl font-extrabold text-amber-300">—</div>
+      <div id="outNote" class="text-sm text-slate-200"></div>
+    </section>
+
+    <section class="bg-white rounded-xl border border-slate-200 p-4 space-y-1 text-sm">
+      <div class="font-bold text-slate-900 mb-1">조건 확인</div>
+      <ul id="outChecks" class="space-y-1"></ul>
+    </section>
+
+    <section class="space-y-3 text-sm leading-relaxed">
+      <h2 class="text-lg font-bold text-slate-900">신생아 특례 디딤돌 주요 조건 (2026)</h2>
+      <ul class="list-disc pl-5 space-y-1">
+        <li><strong>대상:</strong> 대출 신청일 기준 2년 안에 출산(입양)한 무주택 세대주 (2023년 이후 출생아)</li>
+        <li><strong>소득:</strong> 부부 합산 1억 3,000만 원 이하, 맞벌이는 2억 원 이하</li>
+        <li><strong>순자산:</strong> 5억 1,100만 원 이하</li>
+        <li><strong>주택:</strong> 평가액 9억 원 이하, 전용 85㎡ 이하</li>
+        <li><strong>한도·금리:</strong> 최대 4억 원(2025-06-28 이후 계약분), LTV 70%, DTI 60%, 연 1.8~4.5%로 5년간 특례금리(추가 출산 시 연장)</li>
+        <li><strong>의무:</strong> 1개월 안에 전입, 2년 이상 실거주. 대출 기간 중 다른 주택을 사면 회수</li>
+      </ul>
+      <h2 class="text-lg font-bold text-slate-900">자주 묻는 질문</h2>
+      <p><strong>Q. 은행 주담대보다 무조건 유리한가요?</strong><br>금리는 낮지만 한도가 최대 4억이라, 비싼 집은 은행 대출 한도가 더 클 수 있습니다. 위 결과에서 두 금액을 비교해 보세요.</p>
+      <p><strong>Q. 출산 공제와 같이 쓸 수 있나요?</strong><br>네. 자녀 출생 후 2년 안에 부모님께 받는 돈은 증여세 출산 공제(1억)를 받을 수 있고, 출산·양육 주택은 취득세도 최대 500만 원 감면됩니다.</p>
+    </section>
+  </main>
+
+  <footer class="max-w-3xl mx-auto px-4 py-6 text-[11px] text-slate-500 space-y-2 border-t border-slate-200">
+    <nav class="space-x-3 text-xs"><a href="./" class="text-blue-600 hover:underline">내 집 마련 한눈에</a><a href="loan-limit.html" class="text-blue-600 hover:underline">주담대 한도</a><a href="gift-tax.html" class="text-blue-600 hover:underline">부모님 증여세</a><a href="newborn-loan.html" class="text-blue-600 hover:underline">신생아 특례대출</a><a href="acquisition-tax.html" class="text-blue-600 hover:underline">취득세</a></nav>
+    <p>공개된 상품 안내를 단순화한 모의계산이며 금융 자문이 아닙니다. 최종 자격과 한도는 주택도시기금 수탁은행 심사로 정해집니다. 정책 규칙 갱신일 <span id="updated"></span>. 입력한 값은 서버로 보내지 않습니다.</p>
+  </footer>
+
+  <script>
+    const $ = id => document.getElementById(id);
+    const today = new Date().toLocaleDateString('sv');
+    $('updated').textContent = PolicyEngine.POLICY.updated;
+    const nb = PolicyEngine.POLICY.policyLoans.find(p => p.id === 'newborn');
+    const v = (x, f) => (typeof x === 'function' ? x(f) : x);
+
+    function calc() {
+      const price = Math.max(0.5, Number($('price').value) || 0);
+      const area = Number($('area').value);
+      const f = { homes: $('homeless').checked ? 0 : 1, firstTime: $('first').checked, newborn2y: $('born').checked, dualIncome: $('dual').checked,
+                  married: 'within7', children: 1, income: Number($('income').value) || 0, assets: Number($('assets').value) || 0, otherDebtMonthly: 0 };
+      const checks = [
+        ['2년 내 출산·입양', f.newborn2y],
+        ['무주택 세대', f.homes === 0],
+        [`소득 ${v(nb.incomeMax, f).toLocaleString()}만 원 이하 (입력 ${f.income.toLocaleString()}만 원)`, f.income <= v(nb.incomeMax, f)],
+        [`순자산 ${nb.assetMax}억 이하 (입력 ${f.assets}억)`, f.assets <= nb.assetMax],
+        [`집값 ${v(nb.priceMax, f)}억 이하 (입력 ${price}억)`, price <= v(nb.priceMax, f)],
+        [`전용 ${nb.areaMax}㎡ 이하`, area <= nb.areaMax],
+      ];
+      $('outChecks').innerHTML = checks.map(([label, ok]) => `<li class="${ok ? 'text-emerald-700' : 'text-rose-600 font-semibold'}">${ok ? '✓' : '✗'} ${label}</li>`).join('');
+      const opts = PolicyEngine.loanOptions({ price, regulated: true, f, date: today, areaSize: area });
+      const o = opts.find(x => x.id === 'newborn');
+      const bank = opts.find(x => x.id === 'bank');
+      if (o.eligible) {
+        const pay = Math.round(PolicyEngine.monthlyPayment(o.amount, o.rate, 30) * 10000);
+        $('outVerdict').textContent = '신생아 특례대출 받을 수 있어요 — 예상 한도';
+        $('outLoan').textContent = `${o.amount.toFixed(1)}억`;
+        $('outNote').textContent = `${o.rateText} · 금리 ${(o.rate * 100).toFixed(1)}% 가정 시 30년 월 약 ${pay.toLocaleString()}만 원. 같은 집 은행 주담대(규제지역) 한도는 ${bank.amount.toFixed(1)}억입니다.`;
+      } else {
+        $('outVerdict').textContent = '지금 조건으로는 신생아 특례대출이 어려워요';
+        $('outLoan').textContent = '해당 없음';
+        $('outNote').textContent = `막히는 조건: ${o.reasons.join(', ')}. 은행 주담대(규제지역) 한도는 ${bank.amount.toFixed(1)}억입니다.`;
+      }
+    }
+    let touched = false;
+    document.querySelectorAll('input, select').forEach(el => el.addEventListener('input', () => {
+      if (!touched) { touched = true; track('calc_newborn_loan'); }
+      calc();
+    }));
+    calc();
+    fetch('policy_live.json', { cache: 'no-cache' }).then(r => (r.ok ? r.json() : null)).then(l => { if (l) { PolicyEngine.applyLive(l); calc(); } }).catch(() => {});
+  </script>
+</body>
+</html>

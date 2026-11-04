@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>아파트 취득세 계산기 2026 — 생애최초·출산 감면 포함 | 수도권 입지 랩</title>
+  <meta name="description" content="아파트 살 때 내는 취득세·지방교육세·농어촌특별세를 계산합니다. 생애최초 감면(최대 200만 원)과 출산·양육 가구 감면(최대 500만 원), 중개보수까지 함께 보여줍니다." />
+  <link rel="canonical" href="https://hoberu.github.io/location-lab/acquisition-tax.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="ko_KR" />
+  <meta property="og:site_name" content="수도권 입지 랩" />
+  <meta property="og:title" content="아파트 취득세 계산기 2026 (생애최초·출산 감면)" />
+  <meta property="og:description" content="집값과 면적만 넣으면 취득세·지방교육세·감면·중개보수까지 한 번에 계산합니다." />
+  <meta property="og:url" content="https://hoberu.github.io/location-lab/acquisition-tax.html" />
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="policy.js"></script>
+  <script src="site.js"></script>
+</head>
+<body class="bg-slate-50 text-slate-800">
+  <header class="bg-slate-900 text-white">
+    <div class="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between gap-2">
+      <a href="./" class="font-bold">수도권 입지 랩</a>
+      <a href="./" class="text-xs px-2.5 py-1.5 rounded-lg bg-amber-400 text-slate-950 font-bold">내 돈으로 어디까지 살까? →</a>
+    </div>
+  </header>
+
+  <main class="max-w-3xl mx-auto px-4 py-6 space-y-5">
+    <div>
+      <h1 class="text-2xl font-extrabold text-slate-900">아파트 취득세 계산기 (2026)</h1>
+      <p class="text-sm text-slate-600 mt-1">무주택자나 기존 집을 팔 예정인 1주택자가 아파트를 살 때 내는 세금과 감면, 중개보수를 계산합니다.</p>
+    </div>
+
+    <section class="bg-white rounded-xl border border-slate-200 p-4 grid grid-cols-2 gap-3 text-sm">
+      <label class="space-y-1"><span class="block text-xs font-semibold text-slate-600">집값(취득가)</span>
+        <span class="flex items-center gap-1"><input id="price" type="number" inputmode="decimal" min="0.1" max="100" step="0.1" value="9" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 font-bold" /><span class="text-slate-500">억</span></span></label>
+      <label class="space-y-1"><span class="block text-xs font-semibold text-slate-600">전용면적</span>
+        <select id="area" class="w-full rounded-lg border border-slate-300 px-2 py-2 bg-white font-bold">
+          <option value="84">85㎡ 이하</option>
+          <option value="114">85㎡ 초과 (농어촌특별세 0.2%)</option>
+        </select></label>
+      <label class="flex items-center gap-2"><input id="first" type="checkbox" checked class="accent-indigo-600" /> 무주택 생애최초</label>
+      <label class="flex items-center gap-2"><input id="born" type="checkbox" class="accent-indigo-600" /> 출산·양육 가구 (2년 내 출산)</label>
+    </section>
+
+    <section class="bg-slate-900 text-white rounded-xl p-5 space-y-2">
+      <div class="text-xs text-slate-300">내야 할 취득세 등 합계</div>
+      <div id="outTotal" class="text-4xl font-extrabold text-amber-300">—</div>
+      <div id="outNote" class="text-sm text-slate-200"></div>
+    </section>
+
+    <section class="bg-white rounded-xl border border-slate-200 p-4 text-sm">
+      <table class="w-full text-left"><tbody id="outTable" class="divide-y divide-slate-100"></tbody></table>
+    </section>
+
+    <section class="space-y-3 text-sm leading-relaxed">
+      <h2 class="text-lg font-bold text-slate-900">1주택 취득세율</h2>
+      <ul class="list-disc pl-5 space-y-1">
+        <li><strong>6억 원 이하:</strong> 1%</li>
+        <li><strong>6억 초과~9억 원 이하:</strong> (집값(억) × 2/3 − 3)% — 예: 7.5억이면 2%</li>
+        <li><strong>9억 원 초과:</strong> 3%</li>
+        <li>여기에 <strong>지방교육세</strong>(취득세율의 10%)가 붙고, 전용 85㎡ 초과면 <strong>농어촌특별세</strong> 0.2%가 더해집니다.</li>
+      </ul>
+      <h2 class="text-lg font-bold text-slate-900">감면 (중복 불가, 큰 쪽 하나)</h2>
+      <ul class="list-disc pl-5 space-y-1">
+        <li><strong>생애최초:</strong> 12억 원 이하 주택, 최대 200만 원 (2028-12-31까지). 3개월 안에 전입하고 3년 안에 팔거나 임대하면 추징됩니다.</li>
+        <li><strong>출산·양육:</strong> 자녀 출산 전후 일정 기간 안에 12억 원 이하 주택 취득 시 최대 500만 원 (2028-12-31까지).</li>
+      </ul>
+      <p class="text-xs text-slate-500">2주택 이상(조정대상지역 8%·12% 중과)은 이 계산기 범위 밖입니다.</p>
+    </section>
+  </main>
+
+  <footer class="max-w-3xl mx-auto px-4 py-6 text-[11px] text-slate-500 space-y-2 border-t border-slate-200">
+    <nav class="space-x-3 text-xs"><a href="./" class="text-blue-600 hover:underline">내 집 마련 한눈에</a><a href="loan-limit.html" class="text-blue-600 hover:underline">주담대 한도</a><a href="gift-tax.html" class="text-blue-600 hover:underline">부모님 증여세</a><a href="newborn-loan.html" class="text-blue-600 hover:underline">신생아 특례대출</a><a href="acquisition-tax.html" class="text-blue-600 hover:underline">취득세</a></nav>
+    <p>공개된 법령을 단순화한 모의계산이며 세무 자문이 아닙니다. 감면 요건은 개별 사정에 따라 달라지니 관할 구청·세무사에게 확인하세요. 정책 규칙 갱신일 <span id="updated"></span>. 입력한 값은 서버로 보내지 않습니다.</p>
+  </footer>
+
+  <script>
+    const $ = id => document.getElementById(id);
+    const today = new Date().toLocaleDateString('sv');
+    const man = eok => {  // 2.5 → '2억 5,000만 원'
+      const m = Math.round(eok * 10000);
+      if (m <= 0) return '0원';
+      const e = Math.floor(m / 10000), r = m % 10000;
+      return e ? `${e}억${r ? ` ${r.toLocaleString()}만` : ''} 원` : `${r.toLocaleString()}만 원`;
+    };
+    $('updated').textContent = PolicyEngine.POLICY.updated;
+    const rule = PolicyEngine.pick(PolicyEngine.POLICY.acqTax, today);
+
+    function calc() {
+      const price = Math.max(0.1, Number($('price').value) || 0);
+      const area = Number($('area').value);
+      const f = { homes: 0, firstTime: $('first').checked, newborn2y: $('born').checked };
+      const rate = rule.rate(price);
+      const acq = price * rate, edu = acq * rule.eduRatio, rural = area > 85 ? price * rule.ruralOver85 : 0;
+      const t = PolicyEngine.acqTax(price, f, today, area);
+      const fee = PolicyEngine.fees(price, today);
+      const total = acq + edu + rural - (t.relief ? t.relief.amount : 0);
+      $('outTotal').textContent = man(total);
+      $('outNote').textContent = t.relief ? `${t.relief.name} ${man(t.relief.amount)} 반영 · 중개보수·등기 비용 약 ${man(fee)}은 별도` : `감면 없음 · 중개보수·등기 비용 약 ${man(fee)}은 별도`;
+      const rows = [
+        [`취득세 (${(rate * 100).toFixed(2)}%)`, acq],
+        ['지방교육세 (취득세의 10%)', edu],
+        ['농어촌특별세', rural],
+        [t.relief ? `감면: ${t.relief.name}` : '감면', -(t.relief ? t.relief.amount : 0)],
+        ['합계', total],
+        ['참고: 중개보수 상한 + 법무·등기 비용', fee],
+      ];
+      $('outTable').innerHTML = rows.map(([k, v], i) => `<tr class="${i === 4 ? 'font-bold text-indigo-700' : ''}"><td class="py-1.5">${k}</td><td class="py-1.5 text-right">${v < 0 ? '−' + man(-v) : man(v)}</td></tr>`).join('');
+    }
+    let touched = false;
+    document.querySelectorAll('input, select').forEach(el => el.addEventListener('input', () => {
+      if (!touched) { touched = true; track('calc_acquisition_tax'); }
+      calc();
+    }));
+    calc();
+  </script>
+</body>
+</html>

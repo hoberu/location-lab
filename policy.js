@@ -204,6 +204,7 @@
   // ---------------------------------------------------------------------------
   const r1 = x => Math.round(x * 10) / 10;
   const r2 = x => Math.round(x * 100) / 100;
+  const r4 = x => Math.round(x * 1e4) / 1e4;  // 만원 단위
 
   function pick(versions, date) {
     const ok = versions.filter(v => (!v.from || v.from <= date) && (!v.until || date <= v.until));
@@ -237,12 +238,12 @@
       .filter(x => (!x.from || x.from <= date) && (!x.until || date <= x.until) && x.need(f) && price <= x.priceMax)
       .map(x => ({ id: x.id, name: x.name, amount: Math.min(x.max, price * rate) }));
     const best = reliefs.sort((a, b) => b.amount - a.amount)[0] || null;
-    return { base: r2(base), relief: best, total: r2(base - (best ? best.amount : 0)) };
+    return { base: r4(base), relief: best, total: r4(base - (best ? best.amount : 0)) };
   }
 
   function fees(price, date) {
     const rule = pick(POLICY.fees, date);
-    return r2(price * (rule.brokerage(price) + rule.legalRatio));
+    return r4(price * (rule.brokerage(price) + rule.legalRatio));
   }
 
   // 은행 주담대의 DSR 한도(스트레스 금리 가산, 기존 대출 월상환 차감)
@@ -316,7 +317,7 @@
     const g = pick(POLICY.gift, date);
     if (taxable <= 0) return 0;
     const [, rate, deduct] = g.brackets.find(([upto]) => taxable <= upto);
-    return r2((taxable * rate - deduct) * (1 - g.filingCredit));
+    return r4((taxable * rate - deduct) * (1 - g.filingCredit));
   }
 
   // 부모 지원 구조 설계. p: {amount, split, priorGift, marriageBirth, allowLoan, loanYears}, f: 가구 사실

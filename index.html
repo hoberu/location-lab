@@ -47,6 +47,12 @@
       transform: translate(-50%, -50%) scale(1.12);
       z-index: 25;
     }
+    #printReport { display: none; }
+    @media print {
+      body > *:not(#printReport) { display: none !important; }
+      #printReport { display: block !important; }
+      #printReport * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -406,7 +412,7 @@
         <p id="qLinkNotice" class="hidden text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-lg px-3 py-2">공유받은 링크의 조건으로 계산했어요. 내 조건으로 바꿔 보세요.</p>
       </section>
 
-      <section class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <section id="qResultSection" class="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div class="p-4 sm:p-5 rounded-xl bg-slate-900 text-white space-y-2">
           <div class="text-xs text-slate-300">최대 매수가 <span class="text-slate-400">(서울 전역 등 규제지역 기준)</span></div>
           <div id="qMaxPrice" class="text-4xl font-extrabold text-amber-300">—</div>
@@ -418,7 +424,7 @@
         </div>
       </section>
 
-      <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <section id="qInfoSection" class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="p-4 rounded-xl bg-white border border-emerald-200 space-y-2">
           <div class="font-bold text-slate-900 text-sm">🎁 받을 수 있는 혜택</div>
           <ul id="qBenefits" class="space-y-1.5 text-xs text-slate-700"></ul>
@@ -429,7 +435,16 @@
         </div>
       </section>
 
+      <section id="qSubscribeCard" class="hidden p-4 rounded-xl bg-indigo-50 border border-indigo-200 flex flex-wrap items-center justify-between gap-3">
+        <div class="space-y-0.5">
+          <div class="font-bold text-slate-900 text-sm">📬 정책이 바뀌면 알려드릴게요</div>
+          <p class="text-xs text-slate-600">대출 한도·토지거래허가구역·세금 규칙이 바뀌면 이메일로 알려드립니다. 단지별 상세 리포트(유료 예정) 출시 소식도 함께 보내드려요.</p>
+        </div>
+        <a id="qSubscribeBtn" href="#" target="_blank" rel="noopener noreferrer" class="px-3.5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shrink-0">무료 알림 신청 →</a>
+      </section>
+
       <section class="flex flex-wrap items-center gap-2">
+        <button type="button" id="qReportBtn" class="px-3.5 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold">📄 리포트 PDF로 저장</button>
         <button type="button" id="qShareBtn" class="px-3.5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold">🔗 결과 공유 링크 복사</button>
         <button type="button" id="qMorePolicyBtn" class="px-3.5 py-2 rounded-lg bg-white border border-slate-300 hover:bg-slate-50 text-slate-800 text-xs font-bold">부모님 지원·정책 자세히 →</button>
         <button type="button" id="qMoreRankingBtn" class="px-3.5 py-2 rounded-lg bg-white border border-slate-300 hover:bg-slate-50 text-slate-800 text-xs font-bold">동네 순위 전체 보기 →</button>
@@ -1219,7 +1234,7 @@
 
         <div>
           <div class="font-bold text-slate-900 text-sm mb-1.5">📊 상황별 비교 — 무엇이 바뀌면 얼마까지 살 수 있나</div>
-          <div class="overflow-x-auto rounded-lg border border-slate-200">
+          <div id="scScenarioTable" class="overflow-x-auto rounded-lg border border-slate-200">
             <table class="w-full min-w-[640px] text-left">
               <thead class="bg-slate-100 text-slate-700"><tr>
                 <th class="px-2 py-1.5">상황</th><th class="px-2 py-1.5">쓸 수 있는 현금</th><th class="px-2 py-1.5">대출</th>
@@ -1236,7 +1251,7 @@
         </div>
         <details class="rounded-lg border border-slate-200 bg-slate-50/60">
           <summary class="cursor-pointer px-3 py-2 font-bold text-slate-800">📡 이 계산에 쓴 정책 데이터와 출처 <span id="scSourceSummary" class="font-normal text-slate-500"></span></summary>
-          <div class="overflow-x-auto px-3 pb-3">
+          <div id="scSourceTable" class="overflow-x-auto px-3 pb-3">
             <table class="w-full min-w-[560px] text-left">
               <thead class="text-slate-500"><tr><th class="py-1 pr-2">항목</th><th class="py-1 pr-2">값</th><th class="py-1 pr-2">방식</th><th class="py-1">출처 · 기준일</th></tr></thead>
               <tbody id="scSourceRows"></tbody>
@@ -2049,8 +2064,17 @@
     </div>
   </footer>
 
+  <nav class="bg-white border-t border-slate-200 py-3 px-4 text-center text-xs text-slate-600 space-x-3">
+    <span class="font-semibold text-slate-800">자주 찾는 계산기</span>
+    <a href="loan-limit.html" class="text-blue-600 hover:underline">주담대 한도</a>
+    <a href="gift-tax.html" class="text-blue-600 hover:underline">부모님 증여세</a>
+    <a href="newborn-loan.html" class="text-blue-600 hover:underline">신생아 특례대출</a>
+    <a href="acquisition-tax.html" class="text-blue-600 hover:underline">취득세</a>
+  </nav>
+
   <!-- Legal Compliance Footer -->
   <footer class="bg-white border-t border-slate-200 py-3 px-4 text-center text-[11px] text-slate-400">
+    입력한 금액·조건은 서버로 보내거나 저장하지 않습니다(이 기기에만 저장). 서비스 개선을 위해 익명 방문 통계를 수집할 수 있습니다.<br>
     본 서비스는 국토교통부 실거래가 등 공공데이터와 정책 규칙, 운영자의 자체 입지 평가를 바탕으로 한 참고 도구이며, 특정 부동산의 매수·매도 권유나 자본시장법상 투자 자문이 아닙니다.
   </footer>
 
@@ -2112,6 +2136,7 @@
   </div>
 
   <script src="policy.js"></script>
+  <script src="site.js"></script>
   <script>
     // 운영자용 화면(배포·수익화·법률 점검·DB/수익모델 탭·결제 데모)은 주소 끝에 ?admin=1을 붙였을 때만 보인다.
     // ponytail: 화면 숨김일 뿐 보안이 아님 — 실제 결제·관리 기능은 서버 검증이 생길 때 분리할 것
@@ -2924,6 +2949,17 @@
         syncScenarioInputs();
         renderAll();
       });
+      let touched = false;
+      ['qCash', 'qIncome', 'qParent', 'qFamily'].forEach(id => document.getElementById(id).addEventListener('change', () => {
+        if (!touched) { touched = true; track('quick_input'); }
+      }));
+      const sub = document.getElementById('qSubscribeCard');
+      if (/^https:\/\//.test(window.SITE_CONFIG.subscribeUrl)) {
+        document.getElementById('qSubscribeBtn').href = window.SITE_CONFIG.subscribeUrl;
+        document.getElementById('qSubscribeBtn').addEventListener('click', () => track('subscribe_click'));
+        sub.classList.remove('hidden');
+      }
+      document.getElementById('qReportBtn').addEventListener('click', () => { track('report_pdf'); printReport(); });
       num('qCash', v => { state.seed = Math.min(100, v); });
       num('qIncome', v => { state.income = Math.min(200000, v); });
       num('qParent', v => { state.parent.amount = Math.min(50, v); });
@@ -2947,6 +2983,7 @@
             : `복사가 안 되면 이 주소를 직접 복사하세요: ${link}`;
           toast.classList.remove('hidden');
         };
+        track('share_link');
         if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(link).then(() => done(true), () => done(false));
         else done(false);
       });
@@ -3025,6 +3062,35 @@
       document.getElementById('qFootnote').textContent =
         `정책 기준일 ${date} · 은행 주담대 ${bankSrc.value}(${bankSrc.kind === 'auto' ? `${bankSrc.source.split(' · ')[0]} ${bankSrc.asOf}` : '가정값'}) · 생애최초 여부·주택 보유 등 세부 조건은 '부모님 지원·정책 자세히'에서 바꿀 수 있어요. ` +
         '입지 점수는 자체 평가이며, 실제 대출 한도와 세금은 은행·세무사 확인이 필요합니다.';
+    }
+
+    // 인쇄(PDF 저장)용 리포트: 결론 화면·상황별 비교·데이터 출처를 한 장으로 모아 인쇄
+    function printReport() {
+      const copy = id => {
+        const el = document.getElementById(id);
+        if (!el) return '';
+        const c = el.cloneNode(true);
+        c.querySelectorAll('button').forEach(b => b.remove());
+        c.classList.remove('hidden');
+        [c, ...c.querySelectorAll('[id]')].forEach(n => n.removeAttribute('id'));
+        return c.outerHTML;
+      };
+      const fam = FAMILY_PRESETS[state.quickFamily];
+      const today = new Date().toLocaleDateString('sv');
+      document.getElementById('printReport').innerHTML = `
+        <div class="border-b-2 border-slate-900 pb-2">
+          <div class="text-2xl font-extrabold">내 집 마련 자금 리포트</div>
+          <div class="text-xs text-slate-600 mt-1">작성일 ${today} · 정책 기준일 ${state.closingDate} · 수도권 입지 랩 (hoberu.github.io/location-lab)</div>
+          <div class="text-sm mt-2">조건: 현금 ${state.seed}억 · 부부 합산 연소득 ${state.income.toLocaleString()}만 원 · ${fam ? fam.label : ''} · 부모님 지원 ${state.parent.amount}억 · 전용 ${state.areaSize}㎡</div>
+        </div>
+        ${copy('qResultSection')}
+        ${copy('qInfoSection')}
+        <div class="font-bold text-sm">상황별 비교</div>
+        ${copy('scScenarioTable')}
+        <div class="font-bold text-sm">계산에 쓴 정책 데이터와 출처</div>
+        ${copy('scSourceTable')}
+        <p class="text-[10px] text-slate-500">본 리포트는 공개된 법령·정책을 단순화한 모의계산이며 세무·금융 자문이 아닙니다. 입지 점수는 자체 평가입니다. 실제 대출 한도와 세금은 은행·세무사 확인이 필요합니다.</p>`;
+      window.print();
     }
 
     // ===== 입력 저장(이 기기) · 공유 링크 =====
@@ -4680,6 +4746,7 @@
     }
 
     function switchTab(tabName) {
+      if (state.activeTab !== tabName) track('tab_' + tabName);
       state.activeTab = tabName;
       const vQuick = document.getElementById('viewQuick');
       const bQuick = document.getElementById('tabBtnQuick');
@@ -5949,5 +6016,6 @@
       </div>
     </div>
   </div>
+  <div id="printReport" class="p-6 space-y-4 text-slate-900"></div>
 </body>
 </html>
