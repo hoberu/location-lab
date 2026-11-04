@@ -484,7 +484,9 @@
         <button type="button" id="qShareBtn" class="px-3.5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold">🔗 결과 공유 링크 복사</button>
         <button type="button" id="qMorePolicyBtn" class="px-3.5 py-2 rounded-lg bg-white border border-slate-300 hover:bg-slate-50 text-slate-800 text-xs font-bold">부모님 지원·정책 자세히 →</button>
         <button type="button" id="qMoreRankingBtn" class="px-3.5 py-2 rounded-lg bg-white border border-slate-300 hover:bg-slate-50 text-slate-800 text-xs font-bold">동네 순위 전체 보기 →</button>
+        <button type="button" id="qPaidBtn" class="px-3.5 py-2 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-bold">📑 계약 전 점검 리포트 9,900원 · 출시 예정</button>
         <span id="qShareToast" class="hidden text-xs font-semibold text-emerald-700"></span>
+        <span id="qPaidToast" class="hidden w-full text-xs font-semibold text-amber-900"></span>
       </section>
       <details id="qConsultBox" class="rounded-lg border border-slate-200 bg-white">
         <summary class="cursor-pointer px-3 py-2 text-xs font-bold text-slate-700">🏢 상담용 리포트 (중개사무소·상담사) — PDF 리포트에 사무소 정보 넣기</summary>
@@ -3007,6 +3009,12 @@
         document.getElementById('qSubscribeBtn').addEventListener('click', () => track('subscribe_click'));
         sub.classList.remove('hidden');
       }
+      document.getElementById('qPaidBtn').addEventListener('click', () => {
+        track('paid_report_click_actions');
+        const t = document.getElementById('qPaidToast');
+        t.innerHTML = `📑 계약 전 점검 리포트: 비교한 매물별 실거래 대비, 대출 사전심사 준비물, 부모님 지원 서류(차용증 양식·증여 신고 일정), 자금조달계획서 작성 예시. ${paidMsgHtml()}`;
+        t.classList.remove('hidden');
+      });
       document.getElementById('qReportBtn').addEventListener('click', () => { track(loadBrand().name ? 'report_pdf_consult' : 'report_pdf'); printReport(); });
       const brand = loadBrand();
       [['qBrandName', 'name'], ['qBrandContact', 'contact'], ['qBrandNote', 'note']].forEach(([id, k]) => {
@@ -3045,6 +3053,7 @@
           document.getElementById('qLsPrice').focus();
           return;
         }
+        if (e.target.closest('[data-paidreport]')) { paidShown = true; track('paid_report_click_compare'); renderComplexes(); return; }
         if (!add && !del && !clear) return;
         let favs = loadFavs();
         if (add) {
@@ -3216,9 +3225,10 @@
       const norm = v => String(v).replace(/\s+/g, '').toLowerCase();
       return complexesOf(d).find(c => !c.sample && norm(c.apt) === norm(apt)) || null;
     }
-    function priceCalc(d, price, area) {
+    // appraisal: 대출 담보가치(시세). 없으면 매매가로 계산
+    function priceCalc(d, price, area, appraisal) {
       const { sc, facts, date } = cxCtx;
-      const cn = PolicyEngine.cashNeeded({ price, regulated: d.regulated, f: facts, date, areaSize: area });
+      const cn = PolicyEngine.cashNeeded({ price, regulated: d.regulated, f: facts, date, areaSize: area, appraisal });
       const pay = Math.round(PolicyEngine.monthlyPayment(cn.loan.amount, cn.loan.rate, cn.loan.years) * 10000);
       return { cn, gap: Math.round((sc.cash - cn.need) * 10) / 10, pay };
     }
@@ -3240,6 +3250,24 @@
       m.textContent = text;
       m.dataset.kind = kind || 'info';
       m.className = `text-[11px] ${kind === 'bad' ? 'text-rose-600 font-semibold' : kind === 'ok' ? 'text-emerald-700 font-semibold' : 'text-slate-500'}`;
+    }
+
+    // 유료 '계약 전 점검 리포트' 수요 확인: 결제는 없고 '출시 예정'을 버튼에 명시. 누른 횟수만 GA4 이벤트로 셈
+    let paidShown = false, paidViewSent = false;
+    function paidMsgHtml() {
+      const sub = /^https:\/\//.test(window.SITE_CONFIG.subscribeUrl)
+        ? ` <a href="${esc(window.SITE_CONFIG.subscribeUrl)}" target="_blank" rel="noopener noreferrer" class="text-indigo-700 font-bold hover:underline">출시 알림 받기 →</a>` : '';
+      return `아직 준비 중인 리포트예요 — 결제는 진행되지 않았어요. 관심 가져 주셔서 고맙습니다!${sub}`;
+    }
+    function paidCardHtml() {
+      if (!paidViewSent) { paidViewSent = true; track('paid_report_view_compare'); }
+      return `<div data-noprint class="p-3 rounded-lg border border-amber-300 bg-amber-50 space-y-1.5">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="text-xs text-slate-700"><strong class="text-slate-900">📑 계약 전 점검 리포트</strong> — 비교한 매물별 실거래 대비·대출 사전심사 준비물·부모님 지원 서류(차용증 양식·증여 신고 일정)·자금조달계획서 작성 예시를 한 번에 정리</div>
+            <button type="button" data-paidreport="1" class="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs shrink-0">9,900원 · 출시 예정</button>
+          </div>
+          ${paidShown ? `<p class="text-[11px] font-semibold text-amber-900">${paidMsgHtml()}</p>` : ''}
+        </div>`;
     }
 
     function renderComplexes() {
@@ -3288,7 +3316,10 @@
       const cols = favs.map(f => {
         const fd = enriched.find(x => x.id === f.r);
         if (!fd) return { f, d: null, k: null };
-        if (f.t === 'L') return { f, d: fd, price: f.price, area: f.area, ref: matchComplex(fd, f.apt), k: priceCalc(fd, f.price, f.area) };
+        if (f.t === 'L') {
+          const ref = matchComplex(fd, f.apt), appraisal = ref ? Math.round(ref.median * f.area / 84 * 100) / 100 : 0;
+          return { f, d: fd, price: f.price, area: f.area, ref, appraisal, k: priceCalc(fd, f.price, f.area, appraisal) };
+        }
         const c = complexesOf(fd).find(x => x.apt === f.apt && x.dong === f.dong);
         return { f, d: fd, c, price: c && c.median, area: 84, k: c ? complexCalc(fd, c) : null };
       });
@@ -3308,7 +3339,9 @@
               : `<span class="text-slate-400">${x.d.live && x.d.live.complexes ? '같은 단지 최근 6개월 84㎡ 거래 없음' : '실거래 연결 후 비교'}</span>`) : ''}
             ${row('필요 현금', x => `${x.k.cn.need.toFixed(1)}억`)}
             ${row('내 예산', x => gapHtml(x.k.gap))}
-            ${row('대출', x => `${esc(x.k.cn.loan.name)} ${x.k.cn.loan.amount.toFixed(1)}억`)}
+            ${row('대출', x => `${esc(x.k.cn.loan.name)} ${x.k.cn.loan.amount.toFixed(1)}억${x.f.t !== 'L' ? ''
+              : x.appraisal ? ` <span class="text-slate-400">(시세 추정 ${x.appraisal.toFixed(1)}억 기준)</span>`
+              : ' <span class="text-amber-700">(호가 기준 — 시세가 더 낮으면 대출이 줄어요)</span>'}`)}
             ${row('월 상환', x => `약 ${x.k.pay.toLocaleString()}만 원${incomeM ? ` <span class="${x.k.pay / incomeM > 0.3 ? 'text-rose-600' : 'text-slate-400'}">(월소득 ${Math.round(x.k.pay / incomeM * 100)}%)</span>` : ''}`)}
             ${row('취득세 등', x => `${Math.round((x.k.cn.tax.total + x.k.cn.fee) * 10000).toLocaleString()}만 원`)}
             ${row('규제', x => `${x.d.regulated ? '규제지역' : '비규제'}${x.d.toheoje ? ' · <span class="text-amber-700">허가구역(실거주)</span>' : ''}`)}
@@ -3319,8 +3352,9 @@
               : `<a href="${naverLink(x.d, x.f)}" target="_blank" rel="noopener noreferrer" class="text-emerald-700 font-bold hover:underline">네이버 부동산 ↗</a>`)}
           </tbody>
         </table></div>
-        ${hasListing ? '<p class="text-[11px] text-slate-500">내 매물 가격은 직접 입력한 호가예요. ‘실거래 대비’는 같은 동네·같은 이름 단지의 최근 6개월 84㎡ 실거래 중앙값과 비교했어요(면적이 다르면 ㎡당). 층·향·수리 상태는 반영하지 않습니다.</p>' : ''}
-        ${cols.some(x => !x.k) ? '<p class="text-[11px] text-slate-500">— 표시는 최근 6개월 84㎡ 거래가 없어 지금 시세를 계산할 수 없는 단지예요.</p>' : ''}`;
+        ${hasListing ? '<p class="text-[11px] text-slate-500">내 매물 가격은 직접 입력한 호가예요. ‘실거래 대비’는 같은 동네·같은 이름 단지의 최근 6개월 84㎡ 실거래 중앙값과 비교했어요(면적이 다르면 ㎡당). 은행·정책대출은 매매가가 아니라 시세(KB시세·감정가)로 한도와 자격을 정하므로, 대출은 실거래로 추정한 시세와 호가 중 낮은 값으로 계산했어요. 층·향·수리 상태는 반영하지 않습니다.</p>' : ''}
+        ${cols.some(x => !x.k) ? '<p class="text-[11px] text-slate-500">— 표시는 최근 6개월 84㎡ 거래가 없어 지금 시세를 계산할 수 없는 단지예요.</p>' : ''}
+        ${paidCardHtml()}`;
     }
 
     // 상담용 리포트 머리글(사무소명·연락처·메모) — 이 기기에만 저장, 공유 링크에는 넣지 않음
@@ -3338,7 +3372,7 @@
         const el = document.getElementById(id);
         if (!el) return '';
         const c = el.cloneNode(true);
-        c.querySelectorAll('button').forEach(b => b.remove());
+        c.querySelectorAll('button, [data-noprint]').forEach(b => b.remove());
         c.classList.remove('hidden');
         [c, ...c.querySelectorAll('[id]')].forEach(n => n.removeAttribute('id'));
         return c.outerHTML;

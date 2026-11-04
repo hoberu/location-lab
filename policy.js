@@ -268,18 +268,22 @@
     return r1(Math.min(bank.capNormal, bank.capByPrice[0][1], bankDsrMax(f, date)));
   }
 
-  // 대출 후보 전부 (적격 여부와 사유 포함). ctx: {price, regulated, f, date}
+  // 대출 후보 전부 (적격 여부와 사유 포함). ctx: {price, regulated, f, date, areaSize?, appraisal?}
+  // 은행·정책대출은 매매가가 아니라 시세(KB시세·감정가)로 담보가치를 본다. ctx.appraisal(시세, 억)이 있으면
+  // 구간 한도·정책대출 주택가격 기준은 시세로, LTV는 매매가와 시세 중 낮은 값으로 계산한다.
   function loanOptions(ctx) {
     const { price, regulated, f, date } = ctx;
+    const value = ctx.appraisal > 0 ? ctx.appraisal : price;
+    const base = Math.min(price, value);
     const income = f.income;
     const bank = pick(POLICY.bankLoan, date);
     const out = [];
 
     const ltv = bank.ltv[regulated ? 'regulated' : 'normal'][f.homes === 0 && f.firstTime ? 'first' : 'none'];
-    const cap = regulated ? bank.capByPrice.find(([upto]) => price <= upto)[1] : bank.capNormal;
+    const cap = regulated ? bank.capByPrice.find(([upto]) => value <= upto)[1] : bank.capNormal;
     const dsrMax = bankDsrMax(f, date);
-    const bankAmt = r1(Math.min(price * ltv, cap, dsrMax));
-    const bind = bankAmt >= r1(price * ltv) ? `LTV ${Math.round(ltv * 100)}%` : bankAmt >= cap ? `한도 ${cap}억` : 'DSR 40%(스트레스 금리 포함)';
+    const bankAmt = r1(Math.min(base * ltv, cap, dsrMax));
+    const bind = bankAmt >= r1(base * ltv) ? `LTV ${Math.round(ltv * 100)}%` : bankAmt >= cap ? `한도 ${cap}억` : 'DSR 40%(스트레스 금리 포함)';
     out.push({ id: 'bank', name: '시중은행 주담대', eligible: true, amount: bankAmt, rate: bank.rate, years: bank.years,
       note: `${regulated ? '규제지역' : '비규제'} · ${bind}에서 결정`, src: bank.src });
 
@@ -288,11 +292,11 @@
       const reasons = [];
       if (!p.need(f)) reasons.push('자격(무주택·가구 요건) 미해당');
       if (income > val(p.incomeMax, f)) reasons.push(`소득 ${val(p.incomeMax, f).toLocaleString()}만원 초과`);
-      if (price > val(p.priceMax, f)) reasons.push(`주택가격 ${val(p.priceMax, f)}억 초과`);
+      if (value > val(p.priceMax, f)) reasons.push(`주택가격(시세) ${val(p.priceMax, f)}억 초과`);
       if (p.areaMax && (ctx.areaSize || 84) > p.areaMax) reasons.push(`전용 ${p.areaMax}㎡ 초과`);
       if (p.assetMax && (f.assets || 0) > p.assetMax) reasons.push(`순자산 ${p.assetMax}억 초과`);
       const dtiMax = principalFromPayment((income / 10000) * p.dti / 12, p.rate, 30);
-      const amount = r1(Math.min(val(p.limit, f), price * val(p.ltv, f), dtiMax));
+      const amount = r1(Math.min(val(p.limit, f), base * val(p.ltv, f), dtiMax));
       out.push({ id: p.id, name: p.name, eligible: reasons.length === 0, reasons, amount, rate: p.rate, years: 30,
         rateText: p.rateText, note: `한도 ${val(p.limit, f)}억 · LTV ${Math.round(val(p.ltv, f) * 100)}%`, src: p.src });
     }

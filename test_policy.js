@@ -83,6 +83,20 @@ assert.strictEqual(nbOpt(8, { ...nb, assets: 6 }).eligible, false);
 assert.strictEqual(nbOpt(8, { ...nb, income: 15000 }).eligible, false);
 assert.strictEqual(nbOpt(8, { ...nb, income: 15000, dualIncome: true }).eligible, true);
 
+// 시세(appraisal) 기준: 호가 12억·시세 10억이면 LTV는 10억 기준, 세금은 12억 기준
+{
+  const c0 = { regulated: true, f: base, date: D, areaSize: 84 };
+  assert.strictEqual(bank(10, base).amount, 4);
+  assert.strictEqual(E.loanOptions({ ...c0, price: 12, appraisal: 10 }).find(o => o.id === 'bank').amount, 4);   // 12억×40%=4.8 아님
+  assert.strictEqual(E.loanOptions({ ...c0, price: 9, appraisal: 11 }).find(o => o.id === 'bank').amount, 3.6);  // 시세가 높아도 매매가 기준
+  near(E.cashNeeded({ ...c0, price: 12, appraisal: 10 }).tax.total, E.acqTax(12, base, D, 84).total, '세금은 매매가');
+  // 정책대출 주택가격 기준은 시세: 매매가 8.8억이어도 시세 9.2억이면 신생아 특례 불가
+  assert.strictEqual(E.loanOptions({ ...c0, f: nb, price: 8.8, appraisal: 9.2 }).find(o => o.id === 'newborn').eligible, false);
+  assert.strictEqual(E.loanOptions({ ...c0, f: nb, price: 8.8 }).find(o => o.id === 'newborn').eligible, true);
+  // 구간 한도도 시세: 매매가 14.5억·시세 16억 → 6억 아닌 4억 구간
+  assert.ok(E.loanOptions({ ...c0, f: { ...base, income: 40000 }, price: 14.5, appraisal: 16 }).find(o => o.id === 'bank').amount <= 4);
+}
+
 // 최대 매수가: 그 가격은 살 수 있고 조금 더 비싸면 못 삼
 const ctx = { regulated: true, f: base, date: D, areaSize: 84 };
 const mp = E.maxPrice(6, ctx);
