@@ -198,6 +198,9 @@ KST = timezone(timedelta(hours=9))
 AREA_84 = (83.0, 85.0)   # 전용 84㎡형(국민평형)만 집계
 MIN_SAMPLES = 5          # 표본이 이보다 적으면 기존 값 유지
 HOLD_DAYS = 3            # ±5% 급변이 3일 연속이면 실제 변화로 보고 반영
+MAIN_MONTHS = 3          # 대표 시세(중앙값)에 쓰는 최근 개월 수
+TREND_MONTHS = 6         # 화면 추이 그래프에 쓰는 개월 수 (API 호출은 이 개월 수 기준)
+RECENT_N = 8             # 화면에 보여줄 최근 거래 건수
 
 
 def recent_months(today: date, n: int = 3) -> list[str]:
@@ -242,16 +245,51 @@ def _is_84(item: dict) -> bool:
         return False
 
 
+def _ym(item: dict) -> str:
+    try:
+        return f"{int(item.get('dealYear')):04d}{int(item.get('dealMonth')):02d}"
+    except (TypeError, ValueError):
+        return ""
+
+
+def _valid_sales(trades: list[dict]) -> list[dict]:
+    return [t for t in trades if _is_84(t) and t.get("dealingGbn") != "직거래" and not t.get("cdealType")]
+
+
+def _valid_jeonse(rents: list[dict]) -> list[dict]:
+    return [r for r in rents if _is_84(r) and _manwon(r.get("monthlyRent")) == 0 and r.get("contractType") != "갱신"]
+
+
 def summarize(trades: list[dict], rents: list[dict]) -> tuple:
     """84㎡ 매매 중앙값(직거래·해제 제외), 84㎡ 신규 순수전세 중앙값. 단위: 억 원."""
-    sales = [_manwon(t.get("dealAmount")) for t in trades
-             if _is_84(t) and t.get("dealingGbn") != "직거래" and not t.get("cdealType")]
-    jeonse = [_manwon(r.get("deposit")) for r in rents
-              if _is_84(r) and _manwon(r.get("monthlyRent")) == 0 and r.get("contractType") != "갱신"]
+    sales = [_manwon(t.get("dealAmount")) for t in _valid_sales(trades)]
+    jeonse = [_manwon(r.get("deposit")) for r in _valid_jeonse(rents)]
 
     def eok(v):
         return round(statistics.median(v) / 10000, 1) if v else None
     return eok(sales), len(sales), eok(jeonse), len(jeonse)
+
+
+def trend_and_recent(trades: list[dict], rents: list[dict], months: list[str]) -> tuple[dict, list[dict]]:
+    """화면용: 월별 84㎡ 중앙값(표본 3건 미만은 None, 과거→최근)과 최근 실거래 목록(최신순)."""
+    s, j = _valid_sales(trades), _valid_jeonse(rents)
+
+    def med(items, field, ym):
+        v = [_manwon(x.get(field)) for x in items if _ym(x) == ym]
+        return round(statistics.median(v) / 10000, 2) if len(v) >= 3 else None
+
+    asc = list(reversed(months))
+    trend = {"months": asc, "sale": [med(s, "dealAmount", m) for m in asc], "jeonse": [med(j, "deposit", m) for m in asc]}
+
+    def row(x, kind, field):
+        ym = _ym(x)
+        return {"date": f"{ym[:4]}-{ym[4:]}-{int(x.get('dealDay') or 1):02d}", "apt": x.get("aptNm", ""), "dong": x.get("umdNm", ""),
+                "type": kind, "floor": x.get("floor", ""), "area": x.get("excluUseAr", ""),
+                "price": round(_manwon(x.get(field)) / 10000, 2), "gbn": x.get("dealingGbn") or x.get("contractType") or ""}
+
+    rows = [row(x, "매매", "dealAmount") for x in s] + [row(x, "전세", "deposit") for x in j]
+    rows.sort(key=lambda r: r["date"], reverse=True)
+    return trend, rows[:RECENT_N]
 
 
 def apply_reading(region: dict, key: str, new: float | None, n: int) -> str:
@@ -271,7 +309,8 @@ def apply_reading(region: dict, key: str, new: float | None, n: int) -> str:
 def sync_live_prices(key: str, today: date, path: str = JSON_OUT_PATH, fetch=fetch_items) -> dict:
     with open(path, encoding="utf-8") as f:
         snap = json.load(f)
-    months = recent_months(today)
+    months = recent_months(today, TREND_MONTHS)
+    main = set(months[:MAIN_MONTHS])
     stats = {"ok": 0, "held": 0, "skip": 0, "errors": 0, "calls": 0, "trades": 0, "rents": 0}
 
     for region in snap["regions"].values():
@@ -286,7 +325,8 @@ def sync_live_prices(key: str, today: date, path: str = JSON_OUT_PATH, fetch=fet
             stats["errors"] += 1
             print(f"[WARN] {region['name']}: {e}")
             continue
-        sale, sale_n, jeonse, jeonse_n = summarize(trades, rents)
+        region["trend"], region["recent"] = trend_and_recent(trades, rents, months)
+        sale, sale_n, jeonse, jeonse_n = summarize([t for t in trades if _ym(t) in main], [r for r in rents if _ym(r) in main])
         stats["trades"] += sale_n
         stats["rents"] += jeonse_n
         stats[apply_reading(region, "sale84", sale, sale_n)] += 1
@@ -295,7 +335,7 @@ def sync_live_prices(key: str, today: date, path: str = JSON_OUT_PATH, fetch=fet
     if stats["errors"] == len(snap["regions"]):
         raise RuntimeError("모든 지역 API 호출 실패 — 스냅샷을 덮어쓰지 않음 (키 승인·트래픽 확인)")
 
-    snap.update(updated_at=datetime.now(KST).isoformat(timespec="minutes"), months=months, last_run=stats)
+    snap.update(updated_at=datetime.now(KST).isoformat(timespec="minutes"), months=months[:MAIN_MONTHS], last_run=stats)
     with open(path, "w", encoding="utf-8") as f:
         json.dump(snap, f, ensure_ascii=False, indent=1)
     return stats

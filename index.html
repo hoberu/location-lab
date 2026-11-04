@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>수도권 입지 랩 Pro — 서울·경기 입지 스코어링 & 갈아타기 SaaS (2026)</title>
+  <title>수도권 입지 랩 — 내 집 마련 자금·입지 계산기</title>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -54,7 +54,7 @@
         <div>
           <div class="flex items-center gap-2 flex-wrap">
             <h1 class="text-base sm:text-lg font-bold tracking-tight">수도권 입지 랩 (Location Lab Pro)</h1>
-            <span class="text-[11px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 font-medium">✓ 공공데이터·정책 교차검증</span>
+            <span class="text-[11px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 font-medium">공공데이터 기반</span>
             <span class="text-[11px] px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-400/30 font-medium">가족·시설 맞춤 & 초보 안전가이드</span>
           </div>
           <p class="text-xs text-slate-400 hidden sm:block">가족 구성·아이 나이·선호 시설 선택만으로 끝나는 서울·경기 입지 순위 & 정책자금·갈아타기 시뮬레이터</p>
@@ -64,12 +64,12 @@
       <!-- Right Controls: SaaS Usage Meter & Navigation Tabs -->
       <div class="flex flex-wrap items-center gap-2">
         <!-- Legal Shield & Compliance Audit Button -->
-        <button type="button" id="openLegalModalBtn" class="px-2.5 py-1.5 rounded-lg bg-rose-600/90 hover:bg-rose-500 text-white font-bold text-xs shadow-sm transition flex items-center gap-1">
+        <button type="button" id="openLegalModalBtn" class="admin-only hidden px-2.5 py-1.5 rounded-lg bg-rose-600/90 hover:bg-rose-500 text-white font-bold text-xs shadow-sm transition flex items-center gap-1">
           <span>⚖️ 법적 책임·면책 가이드</span>
         </button>
 
         <!-- Private Beta Deployment & Monetization Launchpad Button -->
-        <button type="button" id="openDeployModalBtn" class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-sm transition flex items-center gap-1">
+        <button type="button" id="openDeployModalBtn" class="admin-only hidden px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-sm transition flex items-center gap-1">
           <span>🔒 비공개 사이트 배포·수익화</span>
         </button>
 
@@ -103,15 +103,15 @@
             🗺️ 지도 & 실거래 페이지
           </button>
           <button id="tabBtnTransfer" class="px-2 py-1.5 rounded-md text-emerald-300 hover:text-white transition">
-            갈아타기 & 단지별 미세입지 (PRO)
+            갈아타기 & 단지별 미세입지
           </button>
           <button id="tabBtnMatrix" class="expert-only-ui hidden px-2 py-1.5 rounded-md text-slate-300 hover:text-white transition">
             저평가 매트릭스 (가성비 맵)
           </button>
-          <button id="tabBtnGuide" class="expert-only-ui hidden px-2 py-1.5 rounded-md text-slate-300 hover:text-white transition">
+          <button id="tabBtnGuide" class="admin-only hidden px-2 py-1.5 rounded-md text-slate-300 hover:text-white transition">
             입지 분석 원리 & 출처
           </button>
-          <button id="tabBtnSaas" class="expert-only-ui hidden px-2 py-1.5 rounded-md text-amber-300 hover:text-white transition">
+          <button id="tabBtnSaas" class="admin-only hidden px-2 py-1.5 rounded-md text-amber-300 hover:text-white transition">
             SaaS 유료화 & 수익모델
           </button>
         </nav>
@@ -126,11 +126,11 @@
         <!-- Card 1: Click to inspect Score Evidence & Daily Update QA Guardrails -->
         <div id="bannerCardQaBtn" role="button" tabindex="0" class="p-2.5 rounded-lg bg-slate-50 hover:bg-emerald-50/60 border border-slate-200 hover:border-emerald-400 cursor-pointer transition group">
           <div class="flex items-center justify-between">
-            <span class="text-xs text-slate-500 group-hover:text-emerald-800 font-medium">서울 평균 매매가 · 데이터 검증</span>
-            <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold">신뢰도 A+ · 근거보기 ▾</span>
+            <span class="text-xs text-slate-500 group-hover:text-emerald-800 font-medium">서울 25개구 84㎡ 시세 평균</span>
+            <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold">출처·계산 방식 ▾</span>
           </div>
-          <div class="text-base sm:text-lg font-bold text-slate-900 mt-0.5">16억 3,546만 원 <span class="text-xs font-normal text-emerald-600">▲0.66%</span></div>
-          <div class="text-[11px] text-emerald-700 font-medium">🔍 클릭: 점수 산출 근거 & 일일 자동갱신 무결성 확인</div>
+          <div id="bannerSeoulAvg" class="text-base sm:text-lg font-bold text-slate-900 mt-0.5">—</div>
+          <div class="text-[11px] text-emerald-700 font-medium">🔍 클릭: 점수·시세 출처와 자동 갱신 방식</div>
         </div>
 
         <!-- Card 2: Click to edit Policy, Family & Child Age from ANY page -->
@@ -328,7 +328,7 @@
             <h3 class="text-sm sm:text-base font-bold text-white mt-1">🛡️ “이 점수와 시세, 정말 믿어도 될까요? 매일 자동 갱신할 때 오류가 나면 어떡하죠?”</h3>
           </div>
           <div class="flex items-center gap-2">
-            <button type="button" id="runQaSelfTestBtn" class="px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs transition shadow-sm">
+            <button type="button" id="runQaSelfTestBtn" class="admin-only hidden px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs transition shadow-sm">
               🧪 일일 자동갱신 ‘이상치·오류 방어’ 테스트 실행
             </button>
             <button type="button" id="closeQaDrawerBtn" class="px-2.5 py-1.5 rounded-lg bg-emerald-900 hover:bg-emerald-800 text-emerald-200 font-semibold text-xs transition">
@@ -340,9 +340,9 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-3.5">
           <!-- Left: Why the scores are trustworthy (Raw Quantitative Metrics vs Subjective Adjustment) -->
           <div class="p-3.5 rounded-xl bg-slate-900/90 border border-emerald-800/80 space-y-2">
-            <div class="font-bold text-emerald-300 text-xs sm:text-sm">1. 점수의 신뢰성: ‘주관적 감’이 아닌 100% 공공 원천 수치 정규화</div>
+            <div class="font-bold text-emerald-300 text-xs sm:text-sm">1. 입지 점수는 자체 평가입니다</div>
             <p class="text-slate-300 text-[11px] leading-relaxed">
-              입지 점수는 AI가 임의로 지어낸 숫자가 아닙니다. 아래 <strong>5대 공공·실측 물리 데이터</strong>를 수도권 37개 지역 내 백분위(Percentile)로 환산한 결정론적(Deterministic) 수식 결과입니다.
+              직주근접·학군·상품성·인프라·미래가치 5개 항목 점수(0~100)는 공개 자료를 참고해 운영자가 매긴 <strong>자체 평가값</strong>이며, 원천 데이터에서 자동 계산한 값이 아닙니다. 가족 조건에 따라 가중치만 바뀝니다. 시세·대출·세금은 공개 데이터와 정책 규칙으로 계산합니다.
             </p>
             <div id="qaRegionEvidenceBox" class="p-2.5 rounded-lg bg-slate-950 border border-slate-800 space-y-1 text-[11px] text-slate-200">
               <!-- Populated dynamically with selected district's raw metrics -->
@@ -354,18 +354,18 @@
 
           <!-- Right: 4-Layer Daily Automated Refresh Error Guardrail (Circuit Breaker) -->
           <div class="p-3.5 rounded-xl bg-slate-900/90 border border-emerald-800/80 space-y-2">
-            <div class="font-bold text-sky-300 text-xs sm:text-sm">2. 일일 자동 갱신 오류 방어: ‘4중 무결성 가드레일 (Circuit Breaker)’</div>
+            <div class="font-bold text-sky-300 text-xs sm:text-sm">2. 일일 자동 갱신 오류 방어 장치</div>
             <p class="text-slate-300 text-[11px] leading-relaxed">
-              매일 자동으로 데이터를 수집할 때 <strong>특수 직거래(증여성 반값 거래), 공공 API 점검, AI 뉴스 과장 해석</strong>으로 데이터가 오염되는 것을 막기 위해 백엔드(`collector.py`)에 4단계 방어벽이 작동합니다.
+              매일 국토부 실거래가와 정책 수치를 자동으로 받을 때 <strong>직거래·API 오류</strong>로 값이 오염되지 않도록 다음 장치가 작동합니다.
             </p>
             <ul class="space-y-1 text-[11px] text-slate-200 list-disc pl-4">
               <li><strong>① 직거래·이상치 자동 제거(Outlier Trimming):</strong> 가족 간 증여성 직거래와 해제(취소) 거래를 빼고, 최근 3개월 전용 84㎡ 거래의 <strong>중앙값</strong>을 시세로 사용해 극단 거래에 흔들리지 않음</li>
               <li><strong>② 전일 대비 ±5% 서킷브레이커(Auto-Rollback):</strong> API 오류나 표본 부족으로 특정 지역 시세가 하루 만에 ±5% 이상 튀면 <strong>반영을 보류하고 직전 검증 스냅샷 유지</strong> (3일 연속 같은 방향이면 실제 변화로 보고 반영)</li>
-              <li><strong>③ 수식 계산과 AI 요약의 분리:</strong> 매매가·전세가·LTV·DSR·입지점수는 AI를 거치지 않고 <strong>100% 파이썬 수식 코드로만 계산</strong> (AI는 뉴스 호재 분류 보조만 수행)</li>
-              <li><strong>④ 교차검증 감사 로그(Audit Log):</strong> 국토부 실거래가와 KB/한국부동산원 시세 괴리율 상시 대조</li>
+              <li><strong>③ AI 추정 없음:</strong> 매매가·전세가·LTV·DSR·세금은 공개 실거래 데이터와 정책 규칙표로만 계산합니다.</li>
+              <li><strong>④ 출처 표시:</strong> 정책·금리 값마다 출처와 기준일을 보여주고, 서울시 허가구역 목록이 바뀌면 운영자에게 자동 알림이 갑니다.</li>
             </ul>
             <div id="qaSimOutputBox" class="p-2.5 rounded-lg bg-slate-950 border border-slate-800 font-mono text-[11px] text-emerald-300">
-              [시스템 상태] 2026-11-02 06:00 KST 일일 배치 정상 완료 | 수집 1,420건 | 이상치 직거래 제외 19건 | 서킷브레이커 발동 0건 (무결성 정상)
+              [시스템 상태] 수집 현황 확인 중…
             </div>
           </div>
         </div>
@@ -510,7 +510,7 @@
                 ✨ 이 진단 결과로 메인 분석 대시보드 열기 →
               </button>
               <button type="button" id="applyWizardToTransferBtn" class="w-full py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-emerald-300 font-bold transition">
-                🪜 갈아타기 단지 매칭(PRO) 화면으로 바로 이동 →
+                🪜 갈아타기 단지 매칭 화면으로 바로 이동 →
               </button>
             </div>
           </div>
@@ -546,7 +546,7 @@
           </div>
           <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
             <span class="px-2 py-0.5 rounded bg-emerald-600 text-white font-bold text-[10px]">STEP 03 · 세금·단지 매칭</span>
-            <div class="font-bold text-slate-900 text-sm">갈아타기 & 미세입지 (PRO)</div>
+            <div class="font-bold text-slate-900 text-sm">갈아타기 & 미세입지</div>
             <p class="text-slate-600 leading-relaxed">기존 집 매도가에서 양도세·취득세·복비를 뺀 순수 가용 자금을 계산하고, <strong>초품아·평지·역세권 도보분수</strong>가 검증된 대표 리딩 단지를 매칭합니다.</p>
           </div>
           <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
@@ -687,6 +687,7 @@
 
           <!-- 5 Sliders -->
           <div class="space-y-3 text-xs">
+            <p class="text-[10px] text-slate-400">항목별 지역 점수(0~100)는 공개 자료를 참고한 자체 평가이며, 여기서는 가중치만 조절합니다.</p>
             <div>
               <div class="flex justify-between mb-1">
                 <label for="wJob" class="font-medium text-slate-700">직주근접·교통 (강남·판교·여의도·광화문)</label>
@@ -904,7 +905,7 @@
                 <span id="detailTierBadge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-600 text-white">2급지 (준상급지)</span>
                 <h2 id="detailName" class="text-lg sm:text-xl font-bold text-slate-900">마포구</h2>
                 <span id="detailRankBadge" class="text-xs font-semibold text-slate-500">수도권 37개 핵심권역 중 7위</span>
-                <span id="detailVerifyBadge" class="text-[11px] px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 font-medium">✓ 국토부 실거래·학군 교차검증</span>
+                <span id="detailVerifyBadge" class="text-[11px] px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 font-medium">기본 시세 · 실거래 반영 전</span>
                 <span id="detailFacilityMatchBadge" class="text-[11px] px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-200 font-bold">선호시설 100% 부합</span>
               </div>
               <p id="detailHotspots" class="text-xs text-slate-500 mt-1">핵심 생활권 & 대표 단지: 아현·공덕·용강(대흥)·상암 / 마포래미안푸르지오, 마포프레스티지자이</p>
@@ -1468,10 +1469,11 @@
           <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
             <div class="flex items-center justify-between mb-2">
               <h3 id="txChartTitle" class="text-xs sm:text-sm font-bold text-slate-900">마포구 전용 84㎡ 최근 6개월 실거래 추이</h3>
-              <span class="text-[11px] text-slate-400">단위: 억 원 (국토부 신고 기준)</span>
+              <span class="text-[11px] text-slate-400">단위: 억 원 (국토부 신고, 월별 중앙값)</span>
             </div>
             <div class="relative h-48 w-full">
               <canvas id="txTrendChart"></canvas>
+              <div id="txTrendEmpty" class="hidden absolute inset-0 flex items-center justify-center text-center text-xs text-slate-400 px-6">아직 실거래 데이터가 없습니다. 국토부 API가 연결되면 월별 실거래 중앙값이 표시됩니다.</div>
             </div>
           </div>
 
@@ -1508,7 +1510,7 @@
         <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
           <div>
             <div class="flex items-center gap-2">
-              <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[11px] font-bold">PRO 핵심 기능 1</span>
+              <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[11px] font-bold">핵심 기능 1</span>
               <h2 class="text-base sm:text-lg font-bold text-slate-900">징검다리 갈아타기 순자산·부대비용·목표 단지 자동 매칭기</h2>
             </div>
             <p class="text-xs text-slate-500 mt-0.5">현재 보유 주택 매도가에서 기존 대출상환액·취득세(1~3% 누진)·양도세·중개보수·이사비를 자동 공제한 뒤, 실제로 갈아탈 수 있는 상위 급지 대표 단지를 추천합니다.</p>
@@ -1602,7 +1604,7 @@
         <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
           <div>
             <div class="flex items-center gap-2">
-              <span class="px-2 py-0.5 rounded bg-indigo-100 text-indigo-800 text-[11px] font-bold">PRO 핵심 기능 2</span>
+              <span class="px-2 py-0.5 rounded bg-indigo-100 text-indigo-800 text-[11px] font-bold">핵심 기능 2 · 단지 시세는 참고용 예시(실거래 자동 반영 전)</span>
               <h2 class="text-base sm:text-lg font-bold text-slate-900">서울·경기 대표 리딩 단지 미세 입지 스코어카드 & 임장 체크리스트</h2>
             </div>
             <p class="text-xs text-slate-500 mt-0.5">같은 자치구 안에서도 가격을 가르는 <strong>역세권 도보 시간(분), 초품아 여부, 평지/경사도, 세대수</strong>를 단지 단위로 비교하고 우측 버튼으로 <strong>네이버부동산 매물·카카오맵</strong>으로 바로 이동합니다.</p>
@@ -1958,7 +1960,7 @@
           <span class="px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-400/30 text-[10px]">법적 고지 및 면책 조항 (Legal Disclaimer)</span>
           <span>수도권 입지 랩 Pro — 공공데이터 기반 의사결정 보조 시뮬레이터</span>
         </div>
-        <button type="button" id="footerOpenLegalModalBtn" class="text-sky-400 hover:underline font-bold">
+        <button type="button" id="footerOpenLegalModalBtn" class="admin-only hidden text-sky-400 hover:underline font-bold">
           ⚖️ 서비스 운영 시 주의해야 할 5대 법적 책임 & 방어 약관 전문 보기 →
         </button>
       </div>
@@ -1987,7 +1989,7 @@
 
   <!-- Legal Compliance Footer -->
   <footer class="bg-white border-t border-slate-200 py-3 px-4 text-center text-[11px] text-slate-400">
-    본 서비스는 국토교통부 실거래가 공개시스템·나이스 교육정보 등 공공데이터를 기반으로 산출된 정량적 입지 분석 참고 도구이며, 특정 부동산의 매수·매도 권유나 자본시장법상 투자 자문이 아닙니다.
+    본 서비스는 국토교통부 실거래가 등 공공데이터와 정책 규칙, 운영자의 자체 입지 평가를 바탕으로 한 참고 도구이며, 특정 부동산의 매수·매도 권유나 자본시장법상 투자 자문이 아닙니다.
   </footer>
 
   <!-- In-page Modal for SaaS Credit / Plan Notification -->
@@ -2010,10 +2012,10 @@
           <span class="text-[11px] text-indigo-200">PG 서버 없이 오늘 바로 결제·개통!</span>
         </div>
         <p class="text-[11px] text-slate-300 leading-relaxed">
-          <strong>[작동 방식]</strong> 고객이 아래 <strong>간편결제 링크(토스익명송금·카카오페이·라플/포트원 링크)</strong>로 9,900원을 보내면 자동 안내로 <strong>PRO 개통 코드(데모: <code class="text-amber-300 font-bold">PRO2026</code>)</strong>를 받고, 아래 칸에 입력하는 즉시 무제한 개통됩니다.
+          <strong>[작동 방식]</strong> 고객이 아래 <strong>간편결제 링크(토스익명송금·카카오페이·라플/포트원 링크)</strong>로 9,900원을 보내면 자동 안내로 <strong>PRO 개통 코드</strong>를 받고, 아래 칸에 입력하는 즉시 무제한 개통됩니다.
         </p>
         <div class="flex flex-wrap items-center gap-1.5">
-          <input id="proLicenseKeyInput" type="text" value="PRO2026" placeholder="개통 코드 입력 (예: PRO2026)" class="flex-1 rounded-lg px-3 py-2 bg-slate-900 border border-slate-700 text-amber-300 font-extrabold text-xs focus:outline-none focus:border-amber-400" />
+          <input id="proLicenseKeyInput" type="text" value="" placeholder="개통 코드 입력" class="flex-1 rounded-lg px-3 py-2 bg-slate-900 border border-slate-700 text-amber-300 font-extrabold text-xs focus:outline-none focus:border-amber-400" />
           <button type="button" id="activateProKeyBtn" class="px-3.5 py-2 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs transition shadow-sm">
             ⚡ 코드 입력하고 PRO 즉시 개통
           </button>
@@ -2024,8 +2026,8 @@
         <div class="pt-2 border-t border-indigo-800/80 flex flex-wrap items-center justify-between gap-2 text-[11px]">
           <span class="text-slate-300">내 결제 링크(토스/카톡/라플):</span>
           <div class="flex items-center gap-1 w-full sm:w-auto">
-            <input id="ownerPaymentUrlInput" type="text" value="https://toss.me/locationlab" class="flex-1 sm:w-44 rounded px-2 py-1 bg-slate-900 border border-slate-700 text-sky-300 text-[11px]" />
-            <a id="testExternalPayLink" href="https://toss.me/locationlab" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 rounded bg-blue-600 hover:bg-blue-500 text-white font-bold text-[11px] shrink-0">
+            <input id="ownerPaymentUrlInput" type="text" value="" placeholder="내 송금·결제 링크" class="flex-1 sm:w-44 rounded px-2 py-1 bg-slate-900 border border-slate-700 text-sky-300 text-[11px]" />
+            <a id="testExternalPayLink" href="#" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 rounded bg-blue-600 hover:bg-blue-500 text-white font-bold text-[11px] shrink-0">
               결제창 열기 ↗
             </a>
           </div>
@@ -2049,6 +2051,9 @@
 
   <script src="policy.js"></script>
   <script>
+    // 운영자용 화면(배포·수익화·법률 점검·DB/수익모델 탭·결제 데모)은 주소 끝에 ?admin=1을 붙였을 때만 보인다.
+    // ponytail: 화면 숨김일 뿐 보안이 아님 — 실제 결제·관리 기능은 서버 검증이 생길 때 분리할 것
+    const IS_ADMIN = new URLSearchParams(location.search).has('admin');
     // 37 Metropolitan Areas Dataset with Geographical Coordinates and Facility Tags
     const DISTRICTS = [
       {
@@ -3263,11 +3268,16 @@
       // Populate QA Region Raw Evidence Box in Top Drawer
       const qaEvBox = document.getElementById('qaRegionEvidenceBox');
       if (qaEvBox) {
+        const lv = selected.live;
+        const ym = m => `${m.slice(0, 4)}.${m.slice(4)}`;
+        const priceSrc = lv && lv.n
+          ? `국토부 실거래 최근 3개월(${ym(lv.months[lv.months.length - 1])}~${ym(lv.months[0])}) 84㎡ 중앙값 · 매매 ${lv.n}건·전세 ${lv.jn}건 (직거래·해제·갱신 계약 제외)`
+          : '기본 시세(수동 입력값) — 국토부 실거래 자동 반영 전';
         qaEvBox.innerHTML = `
-          <div class="font-bold text-white mb-1">📌 현재 선택된 [${selected.name}] 점수의 실제 원천 데이터 근거:</div>
-          <div>• <strong>직주근접(${selected.scores.job}점):</strong> ${selected.commuteText || '주요 업무지구 대중교통 30분 내외'} (지하철·광역망 시간표 실측)</div>
-          <div>• <strong>학군·교육(${selected.scores.edu}점) & 상품성(${selected.scores.prod}점):</strong> ${selected.hotspots} (학업성취도·학원가 밀도·대단지 비율 반영)</div>
-          <div>• <strong>실거래 시세(매매 ${selected.sale84.toFixed(1)}억 / 전세 ${selected.jeonse84.toFixed(1)}억):</strong> 국토부 API 법정동코드(${selected.lawdCd || '11000'}) 전용 84㎡ 직거래 제외 중위값 교차검증 완료</div>
+          <div class="font-bold text-white mb-1">📌 [${selected.name}] 값의 출처</div>
+          <div>• <strong>입지 점수(자체 평가):</strong> 직주근접 ${selected.scores.job} · 학군 ${selected.scores.edu} · 상품성 ${selected.scores.prod} · 인프라 ${selected.scores.infra} · 미래가치 ${selected.scores.future}점</div>
+          <div>• <strong>참고 통근시간:</strong> ${selected.commuteText || '—'} (대략값)</div>
+          <div>• <strong>시세(매매 ${selected.sale84.toFixed(1)}억 / 전세 ${selected.jeonse84.toFixed(1)}억${state.areaSize !== 84 ? `, ${state.areaSize}㎡ 환산` : ''}):</strong> ${priceSrc}</div>
         `;
       }
 
@@ -3443,29 +3453,20 @@
         `;
       }).join('');
 
-      document.getElementById('txChartTitle').textContent = `${selected.name} 전용 84㎡ 최근 6개월 실거래 추이 (26.05~26.10)`;
-      const sNow = selected.sale84;
-      const jNow = selected.jeonse84;
-      const saleSeries = [
-        +(sNow * 0.965).toFixed(2),
-        +(sNow * 0.974).toFixed(2),
-        +(sNow * 0.982).toFixed(2),
-        +(sNow * 0.991).toFixed(2),
-        +(sNow * 0.996).toFixed(2),
-        +sNow.toFixed(2)
-      ];
-      const jeonseSeries = [
-        +(jNow * 0.972).toFixed(2),
-        +(jNow * 0.978).toFixed(2),
-        +(jNow * 0.985).toFixed(2),
-        +(jNow * 0.990).toFixed(2),
-        +(jNow * 0.995).toFixed(2),
-        +jNow.toFixed(2)
-      ];
+      const tr = selected.live && selected.live.trend;
+      const hasTrend = !!(tr && tr.sale.filter(v => v != null).length >= 2);
+      const fmtYm = m => `${m.slice(2, 4)}.${m.slice(4)}`;
+      document.getElementById('txChartTitle').textContent = hasTrend
+        ? `${selected.name} 전용 84㎡ 월별 실거래 중앙값 (${fmtYm(tr.months[0])}~${fmtYm(tr.months[tr.months.length - 1])})`
+        : `${selected.name} 전용 84㎡ 실거래 추이`;
+      document.getElementById('txTrendEmpty').classList.toggle('hidden', hasTrend);
+      const months = hasTrend ? tr.months.map(fmtYm) : [];
+      const saleSeries = hasTrend ? tr.sale : [];
+      const jeonseSeries = hasTrend ? tr.jeonse : [];
 
       const ctx = document.getElementById('txTrendChart').getContext('2d');
-      const months = ['26.05', '26.06', '26.07', '26.08', '26.09', '26.10'];
       if (txTrendChartInstance) {
+        txTrendChartInstance.data.labels = months;
         txTrendChartInstance.data.datasets[0].data = saleSeries;
         txTrendChartInstance.data.datasets[1].data = jeonseSeries;
         txTrendChartInstance.update();
@@ -3475,68 +3476,35 @@
           data: {
             labels: months,
             datasets: [
-              {
-                label: '84㎡ 평균 매매 실거래가 (억)',
-                data: saleSeries,
-                borderColor: 'rgba(37, 99, 235, 1)',
-                backgroundColor: 'rgba(37, 99, 235, 0.1)',
-                fill: true,
-                tension: 0.3,
-                borderWidth: 2
-              },
-              {
-                label: '84㎡ 평균 전세 실거래가 (억)',
-                data: jeonseSeries,
-                borderColor: 'rgba(16, 185, 129, 1)',
-                backgroundColor: 'rgba(16, 185, 129, 0.05)',
-                fill: false,
-                borderDash: [4, 4],
-                tension: 0.3,
-                borderWidth: 2
-              }
+              { label: '84㎡ 매매 중앙값 (억)', data: saleSeries, borderColor: 'rgba(37, 99, 235, 1)', backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                fill: true, tension: 0.3, borderWidth: 2, spanGaps: true },
+              { label: '84㎡ 전세 중앙값 (억)', data: jeonseSeries, borderColor: 'rgba(16, 185, 129, 1)', backgroundColor: 'rgba(16, 185, 129, 0.05)',
+                fill: false, borderDash: [4, 4], tension: 0.3, borderWidth: 2, spanGaps: true }
             ]
           },
           options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: {
-              legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } }
-            },
-            scales: {
-              y: { beginAtZero: false }
-            }
+            plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } },
+            scales: { y: { beginAtZero: false } }
           }
         });
       }
 
-      document.getElementById('txTableTitle').textContent = `📋 ${selected.name} 최근 신고 실거래 내역 (단지별 외부 매물·지도 직결)`;
-      const aptList = getLeadComplexNames(selected.hotspots);
-      const a1 = aptList[0] || `${cleanName} 센트럴자이`;
-      const a2 = aptList[1] || `${cleanName} 래미안`;
-      const a3 = aptList[2] || `${cleanName} 푸르지오`;
-
-      const sampleTxs = [
-        { date: '2026-10-28', apt: a1, type: '매매', floor: '18층', price: +(sNow * 1.03).toFixed(2), dealType: '중개거래' },
-        { date: '2026-10-25', apt: a2, type: '전세', floor: '12층', price: +(jNow * 1.01).toFixed(2), dealType: '중개거래' },
-        { date: '2026-10-21', apt: a1, type: '매매', floor: '9층', price: +(sNow * 0.99).toFixed(2), dealType: '중개거래' },
-        { date: '2026-10-17', apt: a3, type: '매매', floor: '22층', price: +(sNow * 0.96).toFixed(2), dealType: '중개거래' },
-        { date: '2026-10-12', apt: a2, type: '전세', floor: '7층', price: +(jNow * 0.98).toFixed(2), dealType: '중개거래' },
-        { date: '2026-10-06', apt: a3, type: '매매', floor: '14층', price: +(sNow * 0.94).toFixed(2), dealType: '직거래' }
-      ];
-
+      document.getElementById('txTableTitle').textContent = `📋 ${selected.name} 최근 신고 실거래 (전용 84㎡ · 국토부)`;
+      const recent = (selected.live && selected.live.recent) || [];
       const txBody = document.getElementById('txLedgerTableBody');
-      txBody.innerHTML = sampleTxs.map(tx => {
+      txBody.innerHTML = recent.length ? recent.map(tx => {
         const qApt = encodeURIComponent(`${cleanName} ${tx.apt}`);
         const typeBadge = tx.type === '매매'
           ? '<span class="px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 font-bold text-[10px]">매매</span>'
           : '<span class="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 font-bold text-[10px]">전세</span>';
-
         return `
           <tr class="hover:bg-slate-50 transition">
             <td class="py-2 px-2 text-[11px] text-slate-500">${tx.date}</td>
             <td class="py-2 px-2">
               <div class="font-bold text-slate-900 flex items-center gap-1">${typeBadge} <span>${tx.apt}</span></div>
-              <div class="text-[10px] text-slate-400">전용 84.9㎡ · ${tx.floor} · ${tx.dealType}</div>
+              <div class="text-[10px] text-slate-400">${tx.dong} · 전용 ${tx.area}㎡ · ${tx.floor}층${tx.gbn ? ` · ${tx.gbn}` : ''}</div>
             </td>
             <td class="py-2 px-2 text-right font-bold text-slate-900">${tx.price.toFixed(2)}억</td>
             <td class="py-2 px-2 text-center">
@@ -3547,7 +3515,7 @@
             </td>
           </tr>
         `;
-      }).join('');
+      }).join('') : `<tr><td colspan="4" class="py-4 px-2 text-center text-[11px] text-slate-400">아직 실거래 데이터가 없습니다. 국토부 API가 연결되면 최근 거래가 표시됩니다.</td></tr>`;
     }
 
     function renderNewsFeeds() {
@@ -3807,6 +3775,10 @@
 
       const canLiveCount = enriched.filter(d => d.canLive).length;
       const canGapCount = enriched.filter(d => d.canGap).length;
+      const seoulList = DISTRICTS.filter(d => d.scope === 'seoul');
+      const seoulAvg = seoulList.reduce((a, d) => a + d.sale84, 0) / seoulList.length;
+      const seoulLive = seoulList.filter(d => d.live && d.live.n).length;
+      document.getElementById('bannerSeoulAvg').innerHTML = `약 ${seoulAvg.toFixed(1)}억 원 <span class="text-xs font-normal text-slate-500">${seoulLive ? `실거래 반영 ${seoulLive}/25개구` : '기본 시세'}</span>`;
       document.getElementById('bannerMaxLivePrice').textContent = `약 ${maxLivePrice.toFixed(1)}억 원`;
       const parentNet = currentParentPlan().net;
       document.getElementById('bannerMaxLiveSub').textContent = `현금 ${availableCash().toFixed(1)}억${parentNet > 0 ? `(부모 지원 ${parentNet.toFixed(1)}억 포함)` : ''} + 대출 · 취득세 반영`;
@@ -3824,6 +3796,8 @@
       }
 
       const selected = enriched.find(d => d.id === state.selectedId) || enriched[0];
+      const verifyBadge = document.getElementById('detailVerifyBadge');
+      if (verifyBadge) verifyBadge.textContent = selected.live && selected.live.n ? `✓ 국토부 실거래 ${selected.live.n}건 기준` : '기본 시세 · 실거래 반영 전';
       const tierNames = { 1: '1급지 (최상급지)', 2: '2급지 (준상급지)', 3: '3급지 (중상급지)', 4: '4급지 (중급지)', 5: '5급지 (중하급지)' };
 
       const regionTagEl = document.getElementById('detailRegionTag');
@@ -4455,6 +4429,9 @@
       const bMat = document.getElementById('tabBtnMatrix');
       const bGui = document.getElementById('tabBtnGuide');
       const bSaa = document.getElementById('tabBtnSaas');
+      // 아래 className 재지정이 표시 여부 클래스(초보/관리자 모드)를 지우지 않도록 보관했다가 복원
+      const tabBtns = [bLand, bRank, bPoli, bMapT, bTran, bMat, bGui, bSaa];
+      const keepCls = tabBtns.map(b => ['expert-only-ui', 'admin-only', 'hidden'].filter(c => b.classList.contains(c)));
 
       [vLand, vRank, vPoli, vMapT, vTran, vMat, vGui, vSaa].forEach(v => v.classList.add('hidden'));
       [bRank, bMat, bGui].forEach(b => {
@@ -4493,6 +4470,7 @@
         vSaa.classList.remove('hidden');
         bSaa.className = 'px-2 py-1.5 rounded-md bg-amber-500 text-slate-950 font-bold transition';
       }
+      tabBtns.forEach((b, i) => b.classList.add(...keepCls[i]));
     }
 
     // collector.py가 매일 갱신하는 국토부 실거래 스냅샷. 실패 시(file:// 등) 위 내장 시세 그대로 사용
@@ -4503,7 +4481,10 @@
           if (!snap || !snap.regions) return;
           DISTRICTS.forEach(d => {
             const live = snap.regions[d.id];
-            if (live) { d.sale84 = live.sale84; d.jeonse84 = live.jeonse84; }
+            if (live) {
+              d.sale84 = live.sale84; d.jeonse84 = live.jeonse84;
+              d.live = { n: live.sale84_n || 0, jn: live.jeonse84_n || 0, trend: live.trend, recent: live.recent || [], months: snap.months || [] };
+            }
           });
           const box = document.getElementById('qaSimOutputBox');
           const run = snap.last_run;
@@ -4524,6 +4505,7 @@
     }
 
     window.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.admin-only').forEach(el => el.classList.toggle('hidden', !IS_ADMIN));
       loadLivePrices();
       loadLivePolicy();
       initScenarioSim();
@@ -5008,7 +4990,7 @@
         const row = e.target.closest('.district-row');
         if (row) {
           const targetId = row.getAttribute('data-id');
-          if (state.plan === 'Free' && targetId !== state.selectedId) {
+          if (IS_ADMIN && state.plan === 'Free' && targetId !== state.selectedId) {
             if (state.credits > 0) {
               state.credits -= 1;
             } else {
@@ -5187,7 +5169,7 @@
             if (isEasyMode) el.classList.add('hidden');
             else el.classList.remove('hidden');
           });
-          if (saasMeterBox) {
+          if (saasMeterBox && IS_ADMIN) {
             if (isEasyMode) saasMeterBox.classList.add('hidden');
             else saasMeterBox.classList.remove('hidden');
           }
@@ -5431,7 +5413,7 @@
             const easyMeter = document.getElementById('headerSaasMeterBox');
             if (easyMeter) easyMeter.classList.remove('hidden');
           } else if (keySuccessMsg) {
-            keySuccessMsg.textContent = '⚠️ 유효하지 않은 코드입니다. 데모 개통 코드는 PRO2026 입니다.';
+            keySuccessMsg.textContent = '⚠️ 유효하지 않은 코드입니다.';
             keySuccessMsg.classList.remove('hidden');
           }
         });
@@ -5453,13 +5435,13 @@
       <div>
         <h3 class="text-xl font-extrabold text-white">🔒 수도권 입지 랩 Pro (비공개 베타)</h3>
         <p class="text-xs text-slate-300 mt-1 leading-relaxed">
-          본 사이트는 현재 비공개 클로즈드 베타(Closed Beta) 테스트 중입니다. 발급받으신 <strong>사전 초대코드(데모 기본값: <code class="text-amber-300 font-bold">LAB2026</code>)</strong>를 입력하시면 모든 입지·자금 시뮬레이터를 이용하실 수 있습니다.
+          본 사이트는 현재 비공개 클로즈드 베타(Closed Beta) 테스트 중입니다. 발급받으신 <strong>사전 초대코드</strong>를 입력하시면 모든 입지·자금 시뮬레이터를 이용하실 수 있습니다.
         </p>
       </div>
       <div class="space-y-2">
         <label for="betaPasscodeInput" class="block text-xs font-semibold text-slate-300">초대코드 (Invite Passcode)</label>
-        <input id="betaPasscodeInput" type="text" value="LAB2026" placeholder="초대코드 입력 (예: LAB2026)" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white font-bold text-sm focus:outline-none focus:border-indigo-400" />
-        <p id="betaPasscodeError" class="hidden text-xs text-rose-400 font-semibold">초대코드가 일치하지 않습니다. (데모 코드: LAB2026)</p>
+        <input id="betaPasscodeInput" type="text" value="" placeholder="초대코드 입력" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white font-bold text-sm focus:outline-none focus:border-indigo-400" />
+        <p id="betaPasscodeError" class="hidden text-xs text-rose-400 font-semibold">초대코드가 일치하지 않습니다.</p>
       </div>
       <div class="flex items-center gap-2 pt-1">
         <button type="button" id="unlockBetaSiteBtn" class="flex-1 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs transition shadow-md">

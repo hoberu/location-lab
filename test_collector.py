@@ -45,7 +45,10 @@ assert r["sale84_held"] == 0
 def fake_fetch(url, key, cd, ymd):
     if cd == "99999":
         raise RuntimeError("timeout")
-    return [T("150,000")] * 6 if url == c.TRADE_URL else [R("80,000")] * 6
+    when = {"dealYear": ymd[:4], "dealMonth": ymd[4:], "dealDay": "15"}
+    if ymd < "202609":  # 대표 시세(최근 3개월) 밖의 과거 달은 다른 가격 → 대표값에 섞이면 안 됨
+        return [{**T("100,000"), **when}] * 6 if url == c.TRADE_URL else [{**R("50,000"), **when}] * 6
+    return [{**T("150,000"), **when}] * 6 if url == c.TRADE_URL else [{**R("80,000"), **when}] * 6
 
 with tempfile.TemporaryDirectory() as tmp:
     path = os.path.join(tmp, "snap.json")
@@ -58,6 +61,12 @@ with tempfile.TemporaryDirectory() as tmp:
     assert out["regions"]["a"]["sale84"] == 15.0 and out["regions"]["a"]["jeonse84"] == 8.0
     assert out["regions"]["b"]["sale84"] == 10.0  # 실패 지역은 기존 값 유지
     assert out["months"] == ["202611", "202610", "202609"]
+    tr = out["regions"]["a"]["trend"]
+    assert tr["months"] == ["202606", "202607", "202608", "202609", "202610", "202611"]
+    assert tr["sale"] == [10.0, 10.0, 10.0, 15.0, 15.0, 15.0] and tr["jeonse"][-1] == 8.0
+    rec = out["regions"]["a"]["recent"]
+    assert len(rec) == c.RECENT_N and rec[0]["date"] == "2026-11-15" and rec[0]["price"] in (15.0, 8.0)
+    assert "trend" not in out["regions"]["b"]  # 실패 지역은 건드리지 않음
 
     json.dump({"regions": {"b": snap["regions"]["b"]}}, open(path, "w", encoding="utf-8"))
     before = open(path, encoding="utf-8").read()
