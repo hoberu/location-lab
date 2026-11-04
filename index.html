@@ -11,6 +11,10 @@
   <meta property="og:title" content="내 돈으로 서울·경기 어디까지 살 수 있을까?" />
   <meta property="og:description" content="현금·소득·가족 상황·부모님 지원 4가지로 최대 매수가, 추천 동네, 받을 수 있는 대출·세금 혜택을 한 장으로." />
   <meta property="og:url" content="https://hoberu.github.io/location-lab/" />
+  <meta property="og:image" content="https://hoberu.github.io/location-lab/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -450,6 +454,15 @@
         <button type="button" id="qMoreRankingBtn" class="px-3.5 py-2 rounded-lg bg-white border border-slate-300 hover:bg-slate-50 text-slate-800 text-xs font-bold">동네 순위 전체 보기 →</button>
         <span id="qShareToast" class="hidden text-xs font-semibold text-emerald-700"></span>
       </section>
+      <details id="qConsultBox" class="rounded-lg border border-slate-200 bg-white">
+        <summary class="cursor-pointer px-3 py-2 text-xs font-bold text-slate-700">🏢 상담용 리포트 (중개사무소·상담사) — PDF 리포트에 사무소 정보 넣기</summary>
+        <div class="px-3 pb-3 grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+          <label class="space-y-1"><span class="block text-slate-600">사무소·상담사 이름</span><input id="qBrandName" maxlength="40" class="w-full rounded border border-slate-300 px-2 py-1.5" /></label>
+          <label class="space-y-1"><span class="block text-slate-600">연락처</span><input id="qBrandContact" maxlength="40" class="w-full rounded border border-slate-300 px-2 py-1.5" /></label>
+          <label class="space-y-1"><span class="block text-slate-600">한 줄 메모</span><input id="qBrandNote" maxlength="80" placeholder="예: 11/10 상담, 대출 사전심사 예정" class="w-full rounded border border-slate-300 px-2 py-1.5" /></label>
+          <p class="sm:col-span-3 text-[10px] text-slate-500">입력한 정보는 이 기기에만 저장되고 'PDF로 저장'한 리포트 머리글에 들어갑니다. 공유 링크에는 담기지 않아요.</p>
+        </div>
+      </details>
       <p id="qFootnote" class="text-[11px] text-slate-400 leading-relaxed"></p>
     </div>
 
@@ -2070,6 +2083,9 @@
     <a href="gift-tax.html" class="text-blue-600 hover:underline">부모님 증여세</a>
     <a href="newborn-loan.html" class="text-blue-600 hover:underline">신생아 특례대출</a>
     <a href="acquisition-tax.html" class="text-blue-600 hover:underline">취득세</a>
+    <span class="text-slate-300">|</span>
+    <a href="terms.html" class="text-slate-500 hover:underline">이용약관</a>
+    <a href="privacy.html" class="text-slate-500 hover:underline">개인정보처리방침</a>
   </nav>
 
   <!-- Legal Compliance Footer -->
@@ -2959,7 +2975,17 @@
         document.getElementById('qSubscribeBtn').addEventListener('click', () => track('subscribe_click'));
         sub.classList.remove('hidden');
       }
-      document.getElementById('qReportBtn').addEventListener('click', () => { track('report_pdf'); printReport(); });
+      document.getElementById('qReportBtn').addEventListener('click', () => { track(loadBrand().name ? 'report_pdf_consult' : 'report_pdf'); printReport(); });
+      const brand = loadBrand();
+      [['qBrandName', 'name'], ['qBrandContact', 'contact'], ['qBrandNote', 'note']].forEach(([id, k]) => {
+        const el = document.getElementById(id);
+        el.value = brand[k] || '';
+        el.addEventListener('input', () => {
+          const b = loadBrand();
+          b[k] = el.value.slice(0, 80);
+          try { localStorage.setItem(BRAND_KEY, JSON.stringify(b)); } catch (e) { /* 저장 불가 환경 */ }
+        });
+      });
       num('qCash', v => { state.seed = Math.min(100, v); });
       num('qIncome', v => { state.income = Math.min(200000, v); });
       num('qParent', v => { state.parent.amount = Math.min(50, v); });
@@ -3064,6 +3090,15 @@
         '입지 점수는 자체 평가이며, 실제 대출 한도와 세금은 은행·세무사 확인이 필요합니다.';
     }
 
+    // 상담용 리포트 머리글(사무소명·연락처·메모) — 이 기기에만 저장, 공유 링크에는 넣지 않음
+    const BRAND_KEY = 'locationlab:brand';
+    function loadBrand() {
+      try {
+        const o = JSON.parse(localStorage.getItem(BRAND_KEY) || '{}');
+        return { name: String(o.name || '').slice(0, 40), contact: String(o.contact || '').slice(0, 40), note: String(o.note || '').slice(0, 80) };
+      } catch (e) { return { name: '', contact: '', note: '' }; }
+    }
+
     // 인쇄(PDF 저장)용 리포트: 결론 화면·상황별 비교·데이터 출처를 한 장으로 모아 인쇄
     function printReport() {
       const copy = id => {
@@ -3077,11 +3112,16 @@
       };
       const fam = FAMILY_PRESETS[state.quickFamily];
       const today = new Date().toLocaleDateString('sv');
+      const b = loadBrand();
+      const brandLine = b.name
+        ? `<div class="mt-2 p-2 rounded border border-slate-300 text-sm"><strong>상담: ${esc(b.name)}</strong>${b.contact ? ` · ${esc(b.contact)}` : ''}${b.note ? `<div class="text-xs text-slate-600 mt-0.5">${esc(b.note)}</div>` : ''}</div>`
+        : '';
       document.getElementById('printReport').innerHTML = `
         <div class="border-b-2 border-slate-900 pb-2">
           <div class="text-2xl font-extrabold">내 집 마련 자금 리포트</div>
           <div class="text-xs text-slate-600 mt-1">작성일 ${today} · 정책 기준일 ${state.closingDate} · 수도권 입지 랩 (hoberu.github.io/location-lab)</div>
           <div class="text-sm mt-2">조건: 현금 ${state.seed}억 · 부부 합산 연소득 ${state.income.toLocaleString()}만 원 · ${fam ? fam.label : ''} · 부모님 지원 ${state.parent.amount}억 · 전용 ${state.areaSize}㎡</div>
+          ${brandLine}
         </div>
         ${copy('qResultSection')}
         ${copy('qInfoSection')}
