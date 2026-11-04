@@ -4,6 +4,8 @@
  *   adsenseClient : Google AdSense 게시자 ID (예: 'ca-pub-1234567890123456'). 계산기 페이지에서만 자동 광고
  *   operatorName  : 운영자(개인정보 보호책임자) 이름 또는 상호 — 개인정보처리방침·약관에 표시
  *   contactEmail  : 문의 이메일 — 비어 있으면 GitHub 문의 게시판으로 안내
+ *   donateUrl     : 후원 링크 (예: 'https://toss.me/아이디', 카카오페이 송금 코드·투네이션 주소). 비어 있으면 후원 버튼 숨김.
+ *                   계좌번호를 화면에 직접 적지 말 것 — 공개 계좌는 '통장 묶기' 사기(소액 입금 후 지급정지 신고)에 노출됨
  * 입력한 금액·조건은 통계로 보내지 않는다. 이벤트에는 이름만 담는다.
  */
 window.SITE_CONFIG = {
@@ -12,6 +14,7 @@ window.SITE_CONFIG = {
   adsenseClient: '',
   operatorName: '',
   contactEmail: '',
+  donateUrl: '',
   contactUrl: 'https://github.com/hoberu/location-lab/issues',
 };
 
@@ -32,6 +35,14 @@ window.SITE_CONFIG = {
       const email = /^[^\s@<>"']+@[^\s@<>"']+\.[a-z]{2,}$/i.test(cfg.contactEmail) ? cfg.contactEmail : '';
       el.textContent = email || 'GitHub 문의 게시판';
       if (el.tagName === 'A') el.href = email ? 'mailto:' + email : cfg.contactUrl;
+    });
+    // 후원 버튼: donateUrl이 https 주소일 때만 보이게
+    const donate = /^https:\/\/[^\s"'<>]+$/.test(cfg.donateUrl) ? cfg.donateUrl : '';
+    document.querySelectorAll('[data-site="donate"]').forEach(function (el) {
+      if (!donate) return;
+      el.href = donate;
+      el.classList.remove('hidden');
+      el.addEventListener('click', function () { window.track('donate_click'); });
     });
     document.querySelectorAll('[data-site="operator"]').forEach(function (el) {
       el.textContent = cfg.operatorName || '운영자 정보 등록 예정(사업자등록 후 표시)';

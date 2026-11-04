@@ -484,9 +484,7 @@
         <button type="button" id="qShareBtn" class="px-3.5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold">🔗 결과 공유 링크 복사</button>
         <button type="button" id="qMorePolicyBtn" class="px-3.5 py-2 rounded-lg bg-white border border-slate-300 hover:bg-slate-50 text-slate-800 text-xs font-bold">부모님 지원·정책 자세히 →</button>
         <button type="button" id="qMoreRankingBtn" class="px-3.5 py-2 rounded-lg bg-white border border-slate-300 hover:bg-slate-50 text-slate-800 text-xs font-bold">동네 순위 전체 보기 →</button>
-        <button type="button" id="qPaidBtn" class="px-3.5 py-2 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-bold">📑 계약 전 점검 리포트 9,900원 · 출시 예정</button>
         <span id="qShareToast" class="hidden text-xs font-semibold text-emerald-700"></span>
-        <span id="qPaidToast" class="hidden w-full text-xs font-semibold text-amber-900"></span>
       </section>
       <details id="qConsultBox" class="rounded-lg border border-slate-200 bg-white">
         <summary class="cursor-pointer px-3 py-2 text-xs font-bold text-slate-700">🏢 상담용 리포트 (중개사무소·상담사) — PDF 리포트에 사무소 정보 넣기</summary>
@@ -498,6 +496,7 @@
         </div>
       </details>
       <p id="qFootnote" class="text-[11px] text-slate-400 leading-relaxed"></p>
+      <a data-site="donate" href="#" target="_blank" rel="noopener noreferrer" class="hidden block w-fit text-xs text-amber-800 hover:underline">☕ 계산이 도움이 됐다면 커피 한 잔 후원하기 <span class="text-slate-400">(운영자 개인에게 가는 후원이에요)</span></a>
     </div>
 
     <!-- NEW Phase 11: Beginner 4-Step Guided Progress Bar (Prevents Getting Lost) -->
@@ -2120,11 +2119,12 @@
     <span class="text-slate-300">|</span>
     <a href="terms.html" class="text-slate-500 hover:underline">이용약관</a>
     <a href="privacy.html" class="text-slate-500 hover:underline">개인정보처리방침</a>
+    <a data-site="donate" href="#" target="_blank" rel="noopener noreferrer" class="hidden text-amber-700 font-bold hover:underline">☕ 커피 한 잔 후원</a>
   </nav>
 
   <!-- Legal Compliance Footer -->
   <footer class="bg-white border-t border-slate-200 py-3 px-4 text-center text-[11px] text-slate-400">
-    입력한 금액·조건은 서버로 보내거나 저장하지 않습니다(이 기기에만 저장). 서비스 개선을 위해 익명 방문 통계를 수집할 수 있습니다.<br>
+    입력한 금액·조건은 서버로 보내거나 저장하지 않습니다(이 기기에만 저장). 서비스 개선을 위해 익명 방문 통계를 수집하고, 운영비 마련을 위해 광고가 표시될 수 있습니다.<br>
     본 서비스는 국토교통부 실거래가 등 공공데이터와 정책 규칙, 운영자의 자체 입지 평가를 바탕으로 한 참고 도구이며, 특정 부동산의 매수·매도 권유나 자본시장법상 투자 자문이 아닙니다.
   </footer>
 
@@ -3009,12 +3009,6 @@
         document.getElementById('qSubscribeBtn').addEventListener('click', () => track('subscribe_click'));
         sub.classList.remove('hidden');
       }
-      document.getElementById('qPaidBtn').addEventListener('click', () => {
-        track('paid_report_click_actions');
-        const t = document.getElementById('qPaidToast');
-        t.innerHTML = `📑 계약 전 점검 리포트: 비교한 매물별 실거래 대비, 대출 사전심사 준비물, 부모님 지원 서류(차용증 양식·증여 신고 일정), 자금조달계획서 작성 예시. ${paidMsgHtml()}`;
-        t.classList.remove('hidden');
-      });
       document.getElementById('qReportBtn').addEventListener('click', () => { track(loadBrand().name ? 'report_pdf_consult' : 'report_pdf'); printReport(); });
       const brand = loadBrand();
       [['qBrandName', 'name'], ['qBrandContact', 'contact'], ['qBrandNote', 'note']].forEach(([id, k]) => {
@@ -3053,7 +3047,6 @@
           document.getElementById('qLsPrice').focus();
           return;
         }
-        if (e.target.closest('[data-paidreport]')) { paidShown = true; track('paid_report_click_compare'); renderComplexes(); return; }
         if (!add && !del && !clear) return;
         let favs = loadFavs();
         if (add) {
@@ -3252,24 +3245,6 @@
       m.className = `text-[11px] ${kind === 'bad' ? 'text-rose-600 font-semibold' : kind === 'ok' ? 'text-emerald-700 font-semibold' : 'text-slate-500'}`;
     }
 
-    // 유료 '계약 전 점검 리포트' 수요 확인: 결제는 없고 '출시 예정'을 버튼에 명시. 누른 횟수만 GA4 이벤트로 셈
-    let paidShown = false, paidViewSent = false;
-    function paidMsgHtml() {
-      const sub = /^https:\/\//.test(window.SITE_CONFIG.subscribeUrl)
-        ? ` <a href="${esc(window.SITE_CONFIG.subscribeUrl)}" target="_blank" rel="noopener noreferrer" class="text-indigo-700 font-bold hover:underline">출시 알림 받기 →</a>` : '';
-      return `아직 준비 중인 리포트예요 — 결제는 진행되지 않았어요. 관심 가져 주셔서 고맙습니다!${sub}`;
-    }
-    function paidCardHtml() {
-      if (!paidViewSent) { paidViewSent = true; track('paid_report_view_compare'); }
-      return `<div data-noprint class="p-3 rounded-lg border border-amber-300 bg-amber-50 space-y-1.5">
-          <div class="flex flex-wrap items-center justify-between gap-2">
-            <div class="text-xs text-slate-700"><strong class="text-slate-900">📑 계약 전 점검 리포트</strong> — 비교한 매물별 실거래 대비·대출 사전심사 준비물·부모님 지원 서류(차용증 양식·증여 신고 일정)·자금조달계획서 작성 예시를 한 번에 정리</div>
-            <button type="button" data-paidreport="1" class="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs shrink-0">9,900원 · 출시 예정</button>
-          </div>
-          ${paidShown ? `<p class="text-[11px] font-semibold text-amber-900">${paidMsgHtml()}</p>` : ''}
-        </div>`;
-    }
-
     function renderComplexes() {
       if (!cxCtx) return;
       const { enriched } = cxCtx;
@@ -3353,8 +3328,7 @@
           </tbody>
         </table></div>
         ${hasListing ? '<p class="text-[11px] text-slate-500">내 매물 가격은 직접 입력한 호가예요. ‘실거래 대비’는 같은 동네·같은 이름 단지의 최근 6개월 84㎡ 실거래 중앙값과 비교했어요(면적이 다르면 ㎡당). 은행·정책대출은 매매가가 아니라 시세(KB시세·감정가)로 한도와 자격을 정하므로, 대출은 실거래로 추정한 시세와 호가 중 낮은 값으로 계산했어요. 층·향·수리 상태는 반영하지 않습니다.</p>' : ''}
-        ${cols.some(x => !x.k) ? '<p class="text-[11px] text-slate-500">— 표시는 최근 6개월 84㎡ 거래가 없어 지금 시세를 계산할 수 없는 단지예요.</p>' : ''}
-        ${paidCardHtml()}`;
+        ${cols.some(x => !x.k) ? '<p class="text-[11px] text-slate-500">— 표시는 최근 6개월 84㎡ 거래가 없어 지금 시세를 계산할 수 없는 단지예요.</p>' : ''}`;
     }
 
     // 상담용 리포트 머리글(사무소명·연락처·메모) — 이 기기에만 저장, 공유 링크에는 넣지 않음
@@ -5163,6 +5137,7 @@
       const restored = restoreState();
       document.querySelectorAll('.admin-only').forEach(el => el.classList.toggle('hidden', !IS_ADMIN));
       initQuick(restored);
+      loadAds();   // site.js에 AdSense ID가 있을 때만 자동 광고
       loadLivePrices();
       loadLivePolicy();
       initScenarioSim();
