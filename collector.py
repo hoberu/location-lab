@@ -13,6 +13,7 @@ import sqlite3
 import statistics
 import sys
 import tempfile
+import urllib.error
 import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ET
@@ -222,8 +223,12 @@ def fetch_items(url: str, key: str, lawd_cd: str, ymd: str) -> list[dict]:
         "serviceKey": urllib.parse.unquote(key),  # 포털의 인코딩/디코딩 키 둘 다 허용
         "LAWD_CD": lawd_cd, "DEAL_YMD": ymd, "pageNo": 1, "numOfRows": 9999,
     })
-    with urllib.request.urlopen(f"{url}?{query}", timeout=30) as res:
-        return parse_items(res.read())
+    try:
+        with urllib.request.urlopen(f"{url}?{query}", timeout=30) as res:
+            raw = res.read()
+    except urllib.error.HTTPError as e:  # 키 미등록·미승인은 403 + XML 사유 본문
+        raw = e.read()
+    return parse_items(raw)
 
 
 def _manwon(text: str) -> float:
