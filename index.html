@@ -443,6 +443,20 @@
           </label>
         </div>
         <div id="qCxList" class="overflow-x-auto"></div>
+        <details id="qListingForm" class="rounded-lg border border-indigo-200 bg-indigo-50/40">
+          <summary class="cursor-pointer px-3 py-2 text-xs font-bold text-indigo-900">＋ 내가 본 매물 직접 추가 — 네이버 등에서 본 가격을 넣으면 같은 기준으로 비교해요</summary>
+          <div class="px-3 pb-3 space-y-2 text-xs">
+            <div class="grid grid-cols-2 sm:grid-cols-6 gap-2">
+              <label class="col-span-2 space-y-1"><span class="block text-slate-600">단지 이름</span><input id="qLsApt" maxlength="40" placeholder="예: 마포래미안푸르지오" class="w-full rounded border border-slate-300 px-2 py-1.5 bg-white" /></label>
+              <label class="space-y-1"><span class="block text-slate-600">매물 가격(억)</span><input id="qLsPrice" type="number" inputmode="decimal" min="0.5" max="100" step="0.01" placeholder="예: 18.5" class="w-full rounded border border-slate-300 px-2 py-1.5 bg-white" /></label>
+              <label class="space-y-1"><span class="block text-slate-600">전용(㎡)</span><input id="qLsArea" type="number" inputmode="decimal" min="10" max="300" step="0.1" value="84" class="w-full rounded border border-slate-300 px-2 py-1.5 bg-white" /></label>
+              <label class="col-span-2 space-y-1"><span class="block text-slate-600">메모 (층·향·수리 등)</span><input id="qLsMemo" maxlength="30" placeholder="예: 12층 남향, 올수리" class="w-full rounded border border-slate-300 px-2 py-1.5 bg-white" /></label>
+              <label class="col-span-2 sm:col-span-4 space-y-1"><span class="block text-slate-600">매물 링크 (선택)</span><input id="qLsUrl" type="url" maxlength="300" placeholder="https://new.land.naver.com/..." class="w-full rounded border border-slate-300 px-2 py-1.5 bg-white" /></label>
+              <div class="col-span-2 flex items-end"><button type="button" id="qLsAdd" class="w-full px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-bold">비교에 추가</button></div>
+            </div>
+            <p id="qLsMsg" class="text-[11px] text-slate-500"></p>
+          </div>
+        </details>
         <div id="qFavBox" class="space-y-2"></div>
       </section>
 
@@ -3018,21 +3032,55 @@
         renderAll();
         window.scrollTo({ top: 0 });
       });
-      document.getElementById('qCxRegion').addEventListener('change', e => { cxRegionId = e.target.value; track('cx_region'); renderComplexes(); });
+      document.getElementById('qCxRegion').addEventListener('change', e => { cxRegionId = e.target.value; track('cx_region'); setLsMsg(''); renderComplexes(); });
       document.getElementById('qComplexSection').addEventListener('click', e => {
         const add = e.target.closest('[data-fav]'), del = e.target.closest('[data-unfav]'), clear = e.target.closest('[data-favclear]');
+        const pre = e.target.closest('[data-addls]');
+        if (pre) {   // 단지 줄의 '＋내 매물': 이름을 채우고 가격 칸으로
+          const form = document.getElementById('qListingForm');
+          form.open = true;
+          form.dataset.dong = pre.dataset.dong;
+          form.dataset.preApt = pre.dataset.addls;
+          document.getElementById('qLsApt').value = pre.dataset.addls;
+          document.getElementById('qLsPrice').focus();
+          return;
+        }
         if (!add && !del && !clear) return;
         let favs = loadFavs();
         if (add) {
           const k = favKey(cxRegionId, add.dataset.fav, add.dataset.dong);
-          if (favs.some(f => favKey(f.r, f.apt, f.dong) === k)) favs = favs.filter(f => favKey(f.r, f.apt, f.dong) !== k);
-          else { favs = [...favs, { r: cxRegionId, apt: add.dataset.fav, dong: add.dataset.dong }].slice(-FAV_MAX); track('fav_add'); }
+          if (favs.some(f => keyOf(f) === k)) favs = favs.filter(f => keyOf(f) !== k);
+          else if (favs.length >= FAV_MAX) { setLsMsg(`비교는 최대 ${FAV_MAX}곳까지예요. 비교표에서 ✕로 하나를 빼고 추가하세요.`, 'bad'); return; }
+          else { favs = [...favs, { t: 'C', r: cxRegionId, apt: add.dataset.fav, dong: add.dataset.dong }]; track('fav_add'); }
         }
-        if (del) favs = favs.filter(f => favKey(f.r, f.apt, f.dong) !== del.dataset.unfav);
+        if (del) favs = favs.filter(f => keyOf(f) !== del.dataset.unfav);
         if (clear) favs = [];
+        setLsMsg('');
         saveFavs(favs);
         renderComplexes();
       });
+      // 내가 본 매물 직접 추가
+      const addListing = () => {
+        const $v = id => document.getElementById(id).value.trim();
+        const apt = $v('qLsApt'), price = Number($v('qLsPrice')), area = Number($v('qLsArea') || 84), url = $v('qLsUrl');
+        const form = document.getElementById('qListingForm');
+        if (!apt) return setLsMsg('단지 이름을 넣어 주세요.', 'bad');
+        if (!(price >= 0.5 && price <= 100)) return setLsMsg('매물 가격을 억 단위로 넣어 주세요 (예: 18.5).', 'bad');
+        if (!(area >= 10 && area <= 300)) return setLsMsg('전용면적은 10~300㎡ 사이로 넣어 주세요.', 'bad');
+        if (url && !/^https:\/\/[^\s"'<>]+$/.test(url)) return setLsMsg('링크는 https://로 시작하는 주소만 넣을 수 있어요.', 'bad');
+        const favs = loadFavs();
+        if (favs.length >= FAV_MAX) return setLsMsg(`비교는 최대 ${FAV_MAX}곳까지예요. 비교표에서 ✕로 하나를 빼고 추가하세요.`, 'bad');
+        const f = cleanFav({ t: 'L', id: Date.now().toString(36) + Math.random().toString(36).slice(2, 5), r: cxRegionId, apt,
+          dong: form.dataset.preApt === apt ? form.dataset.dong || '' : '', price, area, memo: $v('qLsMemo'), url });
+        saveFavs([...favs, f]);
+        track('listing_add');
+        ['qLsPrice', 'qLsMemo', 'qLsUrl'].forEach(id => { document.getElementById(id).value = ''; });
+        setLsMsg(`‘${apt} ${f.price}억’을 비교에 넣었어요.`, 'ok');
+        renderComplexes();
+        document.getElementById('qFavBox').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      };
+      document.getElementById('qLsAdd').addEventListener('click', addListing);
+      document.getElementById('qListingForm').addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.tagName === 'INPUT') { e.preventDefault(); addListing(); } });
       document.getElementById('qShareBtn').addEventListener('click', () => {
         const link = shareLink();
         const toast = document.getElementById('qShareToast');
@@ -3128,36 +3176,71 @@
     }
 
     // 단지 고르기·즐겨찾기 비교 — 단지 시세는 국토부 실거래(collector.py → districts_live.json complexes).
-    // 실거래 연결 전에는 COMPLEXES 예시 단지를 '예시'로 표시. 즐겨찾기는 이 기기에만 저장(최대 6곳).
+    // 실거래 연결 전에는 COMPLEXES 예시 단지를 '예시'로 표시.
+    // 비교 목록(이 기기에만 저장, 최대 8곳): t='C' 실거래 단지 / t='L' 사용자가 직접 넣은 매물(호가)
     const FAV_KEY = 'locationlab:fav';
-    const FAV_MAX = 6;
+    const FAV_MAX = 8;
     let cxCtx = null, cxRegionId = null;
+    function cleanFav(o) {
+      if (!o || typeof o !== 'object') return null;
+      const f = { t: o.t === 'L' ? 'L' : 'C', r: String(o.r || '').slice(0, 40), apt: String(o.apt || '').trim().slice(0, 60), dong: String(o.dong || '').slice(0, 30) };
+      if (f.t === 'L') {
+        const price = Number(o.price), area = Number(o.area);
+        if (!(price >= 0.5 && price <= 100)) return null;
+        f.id = String(o.id || '').slice(0, 20);
+        f.price = Math.round(price * 100) / 100;
+        f.area = area >= 10 && area <= 300 ? Math.round(area * 10) / 10 : 84;
+        f.memo = String(o.memo || '').slice(0, 30);
+        f.url = /^https:\/\/[^\s"'<>]+$/.test(String(o.url || '')) ? String(o.url).slice(0, 300) : '';
+        if (!f.id) return null;
+      }
+      return f.r && f.apt ? f : null;
+    }
     function loadFavs() {
       try {
         const a = JSON.parse(localStorage.getItem(FAV_KEY) || '[]');
-        return (Array.isArray(a) ? a : []).slice(0, FAV_MAX)
-          .map(o => ({ r: String(o.r || '').slice(0, 40), apt: String(o.apt || '').slice(0, 60), dong: String(o.dong || '').slice(0, 30) }))
-          .filter(o => o.r && o.apt);
+        return (Array.isArray(a) ? a : []).map(cleanFav).filter(Boolean).slice(0, FAV_MAX);
       } catch (e) { return []; }
     }
     function saveFavs(a) { try { localStorage.setItem(FAV_KEY, JSON.stringify(a)); } catch (e) { /* 저장 불가 환경 */ } }
     const favKey = (r, apt, dong) => `${r}|${apt}|${dong}`;
+    const keyOf = f => (f.t === 'L' ? `L|${f.id}` : favKey(f.r, f.apt, f.dong));
     function complexesOf(d) {
       const live = d.live && d.live.complexes;
       if (Array.isArray(live)) return live.map(c => ({ apt: c.apt, dong: c.dong, n: c.n, median: c.median, last: c.last, built: c.built, sample: false }));
       return COMPLEXES.filter(c => c.regionId === d.id).map(c => ({
         apt: c.name, dong: c.region.replace(' (경기)', '').split(' ').pop(), n: 0, median: c.sale84, last: '', built: c.year, sample: true }));
     }
-    function complexCalc(d, c) {
+    // 같은 동네 실거래 단지 중 이름이 같은 곳 (띄어쓰기·대소문자 무시, 예시 시세는 비교하지 않음)
+    function matchComplex(d, apt) {
+      const norm = v => String(v).replace(/\s+/g, '').toLowerCase();
+      return complexesOf(d).find(c => !c.sample && norm(c.apt) === norm(apt)) || null;
+    }
+    function priceCalc(d, price, area) {
       const { sc, facts, date } = cxCtx;
-      const cn = PolicyEngine.cashNeeded({ price: c.median, regulated: d.regulated, f: facts, date, areaSize: 84 });
+      const cn = PolicyEngine.cashNeeded({ price, regulated: d.regulated, f: facts, date, areaSize: area });
       const pay = Math.round(PolicyEngine.monthlyPayment(cn.loan.amount, cn.loan.rate, cn.loan.years) * 10000);
       return { cn, gap: Math.round((sc.cash - cn.need) * 10) / 10, pay };
     }
+    const complexCalc = (d, c) => priceCalc(d, c.median, 84);
     const naverLink = (d, c) => `https://new.land.naver.com/search?sk=${encodeURIComponent(`${d.name.replace(' (경기)', '')} ${c.apt}`)}`;
     const gapHtml = gap => gap >= 0
       ? `<span class="text-emerald-700 font-bold">살 수 있음</span> <span class="text-slate-400">(여유 ${gap.toFixed(1)}억)</span>`
       : `<span class="text-rose-600 font-bold">${(-gap).toFixed(1)}억 부족</span>`;
+    // 호가가 실거래 중앙값보다 얼마나 비싼지. 면적이 84㎡ 근처가 아니면 ㎡당으로 비교
+    function vsDeal(price, area, ref) {
+      const perM2 = Math.abs(area - 84) > 1.5;
+      const diff = perM2 ? (price / area) / (ref.median / 84) - 1 : price / ref.median - 1;
+      const cls = diff > 0.03 ? 'text-rose-600' : diff < -0.03 ? 'text-emerald-700' : 'text-slate-700';
+      return `<span class="${cls} font-bold">${diff >= 0 ? '+' : ''}${(diff * 100).toFixed(1)}%</span> <span class="text-slate-400">(84㎡ 중앙값 ${ref.median.toFixed(1)}억${perM2 ? ' · ㎡당 비교' : ''})</span>`;
+    }
+    // 폼 아래 안내줄. kind: info(기본 안내, 동네 바뀌면 갱신) / bad(입력 오류) / ok(추가 완료)
+    function setLsMsg(text, kind) {
+      const m = document.getElementById('qLsMsg');
+      m.textContent = text;
+      m.dataset.kind = kind || 'info';
+      m.className = `text-[11px] ${kind === 'bad' ? 'text-rose-600 font-semibold' : kind === 'ok' ? 'text-emerald-700 font-semibold' : 'text-slate-500'}`;
+    }
 
     function renderComplexes() {
       if (!cxCtx) return;
@@ -3171,13 +3254,14 @@
         `<optgroup label="${g}">${groups[g].map(d => `<option value="${d.id}" ${d.id === cxRegionId ? 'selected' : ''}>${esc(d.name.replace(' (경기)', ''))} · ${d.sale84.toFixed(1)}억</option>`).join('')}</optgroup>`).join('');
 
       const d = enriched.find(x => x.id === cxRegionId);
+      const dName = d.name.replace(' (경기)', '');
       const favs = loadFavs();
-      const isFav = c => favs.some(f => favKey(f.r, f.apt, f.dong) === favKey(d.id, c.apt, c.dong));
+      const isFav = c => favs.some(f => keyOf(f) === favKey(d.id, c.apt, c.dong));
       const list = complexesOf(d);
       const sample = list.length && list[0].sample;
       const th = 'px-2 py-1.5 font-semibold text-slate-500 whitespace-nowrap';
       document.getElementById('qCxList').innerHTML = !list.length
-        ? `<p class="text-xs text-slate-500">${d.live && d.live.complexes ? '이 동네는 최근 6개월 84㎡ 매매 실거래가 없어요.' : '이 동네 단지 목록은 실거래 데이터 연결 후 표시돼요.'} <a class="text-indigo-700 font-bold hover:underline" href="${naverLink(d, { apt: '아파트' })}" target="_blank" rel="noopener noreferrer">네이버 부동산에서 ${esc(d.name.replace(' (경기)', ''))} 매물 보기 ↗</a></p>`
+        ? `<p class="text-xs text-slate-500">${d.live && d.live.complexes ? '이 동네는 최근 6개월 84㎡ 매매 실거래가 없어요.' : '이 동네 단지 목록은 실거래 데이터 연결 후 표시돼요.'} <a class="text-indigo-700 font-bold hover:underline" href="${naverLink(d, { apt: '아파트' })}" target="_blank" rel="noopener noreferrer">네이버 부동산에서 ${esc(dName)} 매물 보기 ↗</a> — 마음에 드는 매물은 아래 ‘내가 본 매물 직접 추가’로 비교해 보세요.</p>`
         : `${sample ? '<p class="text-[11px] font-semibold text-amber-700 mb-1">⚠ 실거래 데이터 연결 전이라 대표 단지 예시 시세를 보여드려요. 실제 가격과 다를 수 있습니다.</p>' : ''}
           <table class="w-full text-xs text-left">
             <thead class="border-b border-slate-200"><tr><th class="${th}"></th><th class="${th}">단지</th><th class="${th} text-right">84㎡ ${sample ? '예시 시세' : '실거래 중앙값'}</th><th class="${th}">${sample ? '준공' : '거래·최근'}</th><th class="${th} text-right">필요 현금</th><th class="${th}">내 예산</th><th class="${th}"></th></tr></thead>
@@ -3190,37 +3274,52 @@
                 <td class="px-2 py-1.5 text-slate-500 whitespace-nowrap">${sample ? `${esc(String(c.built))}년` : `${c.n}건 · ${esc(c.last)}`}</td>
                 <td class="px-2 py-1.5 text-right whitespace-nowrap">${k.cn.need.toFixed(1)}억</td>
                 <td class="px-2 py-1.5 whitespace-nowrap">${gapHtml(k.gap)}</td>
-                <td class="px-2 py-1.5"><a href="${naverLink(d, c)}" target="_blank" rel="noopener noreferrer" class="px-1.5 py-0.5 rounded bg-emerald-600 text-white text-[10px] font-bold hover:bg-emerald-500 whitespace-nowrap">매물↗</a></td>
+                <td class="px-2 py-1.5 whitespace-nowrap"><a href="${naverLink(d, c)}" target="_blank" rel="noopener noreferrer" class="px-1.5 py-0.5 rounded bg-emerald-600 text-white text-[10px] font-bold hover:bg-emerald-500">매물↗</a>
+                  <button type="button" data-addls="${esc(c.apt)}" data-dong="${esc(c.dong)}" class="ml-1 px-1.5 py-0.5 rounded border border-indigo-300 text-indigo-700 text-[10px] font-bold hover:bg-indigo-50">＋내 매물</button></td>
               </tr>`;
             }).join('')}</tbody>
           </table>`;
+      const msg = document.getElementById('qLsMsg');
+      if (msg.dataset.kind !== 'bad' && msg.dataset.kind !== 'ok') setLsMsg(`${dName} 기준으로 대출·규제를 계산해요 (위 ‘동네’에서 바꿀 수 있어요). 입력한 매물은 이 기기에만 저장되고 공유 링크에는 담기지 않아요.`);
 
-      // 즐겨찾기 비교: 단지를 열로 나란히
+      // 비교표: 실거래 단지와 내 매물을 열로 나란히
       const box = document.getElementById('qFavBox');
-      if (!favs.length) { box.innerHTML = '<p class="text-[11px] text-slate-500">☆를 누르면 다른 동네 단지까지 모아 여기서 나란히 비교할 수 있어요 (최대 6곳, 이 기기에만 저장).</p>'; return; }
+      if (!favs.length) { box.innerHTML = `<p class="text-[11px] text-slate-500">☆를 누르거나 ‘내가 본 매물’을 추가하면 다른 동네까지 모아 여기서 나란히 비교할 수 있어요 (최대 ${FAV_MAX}곳, 이 기기에만 저장).</p>`; return; }
       const cols = favs.map(f => {
         const fd = enriched.find(x => x.id === f.r);
-        const c = fd && complexesOf(fd).find(x => x.apt === f.apt && x.dong === f.dong);
-        return { f, d: fd, c, k: fd && c ? complexCalc(fd, c) : null };
+        if (!fd) return { f, d: null, k: null };
+        if (f.t === 'L') return { f, d: fd, price: f.price, area: f.area, ref: matchComplex(fd, f.apt), k: priceCalc(fd, f.price, f.area) };
+        const c = complexesOf(fd).find(x => x.apt === f.apt && x.dong === f.dong);
+        return { f, d: fd, c, price: c && c.median, area: 84, k: c ? complexCalc(fd, c) : null };
       });
+      const hasListing = cols.some(x => x.f.t === 'L');
       const incomeM = Math.round(state.income / 12);
       const row = (label, fn) => `<tr><th class="px-2 py-1.5 text-left font-semibold text-slate-500 whitespace-nowrap">${label}</th>${cols.map(x => `<td class="px-2 py-1.5 align-top">${x.k ? fn(x) : '<span class="text-slate-400">—</span>'}</td>`).join('')}</tr>`;
       box.innerHTML = `
-        <div class="flex items-center justify-between"><div class="font-bold text-slate-900 text-sm">★ 즐겨찾기 비교 (${favs.length}/${FAV_MAX})</div><button type="button" data-favclear="1" class="text-[11px] text-slate-500 hover:text-rose-600">모두 지우기</button></div>
+        <div class="flex items-center justify-between"><div class="font-bold text-slate-900 text-sm">★ 비교 (${favs.length}/${FAV_MAX})</div><button type="button" data-favclear="1" class="text-[11px] text-slate-500 hover:text-rose-600">모두 지우기</button></div>
         <div class="overflow-x-auto"><table class="w-full text-xs border border-slate-200 rounded-lg">
-          <thead class="bg-slate-50"><tr><th class="px-2 py-1.5"></th>${cols.map(x => `<th class="px-2 py-1.5 text-left align-top min-w-[9rem]"><div class="font-bold text-slate-900">${esc(x.f.apt)}</div><div class="font-normal text-slate-500">${esc(x.d ? x.d.name.replace(' (경기)', '') : '')} ${esc(x.f.dong)}</div><button type="button" data-unfav="${esc(favKey(x.f.r, x.f.apt, x.f.dong))}" class="text-[10px] text-slate-400 hover:text-rose-600">✕ 빼기</button></th>`).join('')}</tr></thead>
+          <thead class="bg-slate-50"><tr><th class="px-2 py-1.5"></th>${cols.map(x => `<th class="px-2 py-1.5 text-left align-top min-w-[9rem]">${x.f.t === 'L' ? '<span class="inline-block px-1 rounded bg-indigo-100 text-indigo-800 text-[10px] font-bold">내 매물</span>' : ''}<div class="font-bold text-slate-900">${esc(x.f.apt)}</div><div class="font-normal text-slate-500">${esc(x.d ? x.d.name.replace(' (경기)', '') : '')} ${esc(x.f.dong)}</div><button type="button" data-unfav="${esc(keyOf(x.f))}" class="text-[10px] text-slate-400 hover:text-rose-600">✕ 빼기</button></th>`).join('')}</tr></thead>
           <tbody class="divide-y divide-slate-100">
-            ${row(`84㎡ 시세`, x => `<strong>${x.c.median.toFixed(1)}억</strong>${x.c.sample ? ' <span class="text-amber-700">(예시)</span>' : ` <span class="text-slate-400">(${x.c.n}건)</span>`}`)}
+            ${row('가격', x => x.f.t === 'L'
+              ? `<strong>${x.price.toFixed(2)}억</strong> <span class="text-indigo-700">매물 호가</span> <span class="text-slate-400">· 전용 ${x.area}㎡</span>`
+              : `<strong>${x.price.toFixed(1)}억</strong> ${x.c.sample ? '<span class="text-amber-700">(예시 시세)</span>' : `<span class="text-slate-400">84㎡ 실거래 중앙값 (${x.c.n}건)</span>`}`)}
+            ${hasListing ? row('실거래 대비', x => x.f.t !== 'L' ? '<span class="text-slate-400">기준(실거래)</span>'
+              : x.ref ? vsDeal(x.price, x.area, x.ref)
+              : `<span class="text-slate-400">${x.d.live && x.d.live.complexes ? '같은 단지 최근 6개월 84㎡ 거래 없음' : '실거래 연결 후 비교'}</span>`) : ''}
             ${row('필요 현금', x => `${x.k.cn.need.toFixed(1)}억`)}
             ${row('내 예산', x => gapHtml(x.k.gap))}
             ${row('대출', x => `${esc(x.k.cn.loan.name)} ${x.k.cn.loan.amount.toFixed(1)}억`)}
             ${row('월 상환', x => `약 ${x.k.pay.toLocaleString()}만 원${incomeM ? ` <span class="${x.k.pay / incomeM > 0.3 ? 'text-rose-600' : 'text-slate-400'}">(월소득 ${Math.round(x.k.pay / incomeM * 100)}%)</span>` : ''}`)}
             ${row('취득세 등', x => `${Math.round((x.k.cn.tax.total + x.k.cn.fee) * 10000).toLocaleString()}만 원`)}
             ${row('규제', x => `${x.d.regulated ? '규제지역' : '비규제'}${x.d.toheoje ? ' · <span class="text-amber-700">허가구역(실거주)</span>' : ''}`)}
-            ${row('최근 거래·준공', x => `${x.c.last ? `${esc(x.c.last)} · ` : ''}${x.c.built ? `${esc(String(x.c.built))}년 준공` : ''}`)}
-            ${row('매물', x => `<a href="${naverLink(x.d, x.c)}" target="_blank" rel="noopener noreferrer" class="text-emerald-700 font-bold hover:underline">네이버 부동산 ↗</a>`)}
+            ${row(hasListing ? '메모·최근 거래' : '최근 거래·준공', x => x.f.t === 'L' ? (x.f.memo ? esc(x.f.memo) : '<span class="text-slate-400">—</span>')
+              : `${x.c.last ? `${esc(x.c.last)} · ` : ''}${x.c.built ? `${esc(String(x.c.built))}년 준공` : ''}`)}
+            ${row('매물', x => x.f.t === 'L' && x.f.url
+              ? `<a href="${esc(x.f.url)}" target="_blank" rel="noopener noreferrer nofollow" class="text-indigo-700 font-bold hover:underline">내 매물 링크 ↗</a>`
+              : `<a href="${naverLink(x.d, x.f)}" target="_blank" rel="noopener noreferrer" class="text-emerald-700 font-bold hover:underline">네이버 부동산 ↗</a>`)}
           </tbody>
         </table></div>
+        ${hasListing ? '<p class="text-[11px] text-slate-500">내 매물 가격은 직접 입력한 호가예요. ‘실거래 대비’는 같은 동네·같은 이름 단지의 최근 6개월 84㎡ 실거래 중앙값과 비교했어요(면적이 다르면 ㎡당). 층·향·수리 상태는 반영하지 않습니다.</p>' : ''}
         ${cols.some(x => !x.k) ? '<p class="text-[11px] text-slate-500">— 표시는 최근 6개월 84㎡ 거래가 없어 지금 시세를 계산할 수 없는 단지예요.</p>' : ''}`;
     }
 
