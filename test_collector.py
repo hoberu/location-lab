@@ -67,4 +67,59 @@ with tempfile.TemporaryDirectory() as tmp:
     except RuntimeError:
         assert open(path, encoding="utf-8").read() == before
 
+
+# ---------------------------------------------------------------------------
+# policy_collector.py (정책 수치 자동 수집) 파서·보존 로직
+# ---------------------------------------------------------------------------
+import policy_collector as pc
+
+ecos = json.dumps({"StatisticSearch": {"row": [{"TIME": "202609", "DATA_VALUE": "4.88"}, {"TIME": "202608", "DATA_VALUE": "4.66"}]}}).encode()
+assert pc.parse_ecos(ecos) == (4.88, "2026-09")
+try:
+    pc.parse_ecos(json.dumps({"RESULT": {"CODE": "INFO-100"}}).encode())
+    raise AssertionError("ECOS 오류 응답 통과")
+except RuntimeError:
+    pass
+
+hf_html = """<p>기준금리 공시일 : 2026년 11월 09일 (연 %)</p><table><tr><td>u-보금자리론</td><td>5.10</td><td>5.20</td><td>5.25</td><td>5.30</td><td>5.35</td><td>5.40</td></tr>
+<tr><td>아낌e보금자리론</td><td>5.00</td><td>5.10</td><td>5.15</td><td>5.20</td><td>5.25</td><td>5.30</td></tr></table>
+<p>공시일 : 2026년 11월 01일 (연 %)</p><table><tr><td>아낌e보금자리론</td><td>4.90</td><td>5.00</td><td>5.05</td><td>5.10</td><td>5.15</td><td>5.20</td></tr></table>""".encode()
+assert pc.parse_hf(hf_html) == {"posted": "2026-11-09", "rates": [5.0, 5.1, 5.15, 5.2, 5.25, 5.3]}
+
+seoul = lambda rows: json.dumps({"result": rows}, ensure_ascii=False).encode()
+row_all = {"crtrYmd": "2026. 11. 03", "dsgnAuthrNm": "국토교통부 장관", "dsgnTypeNm": "서울시 25개 區 전체", "frstDsgnYmd": "2025-10-20", "areaCn": "市 전체", "rmrkCn": "아파트"}
+row_gn = {"crtrYmd": "2026. 11. 03", "dsgnAuthrNm": "서울시장", "dsgnTypeNm": "강남·송파·서초·용산구", "frstDsgnYmd": "2025-03-24", "areaCn": "區 전체", "rmrkCn": "‘아파트’ 용도"}
+s1 = pc.parse_seoul(seoul([row_gn, row_all]))
+assert s1["all_apartments"] is True and s1["asof"] == "2026-11-03"
+s2 = pc.parse_seoul(seoul([row_gn]))
+assert s2["all_apartments"] is False and s2["hash"] != s1["hash"]
+
+with tempfile.TemporaryDirectory() as tmp:
+    out, alert = os.path.join(tmp, "live.json"), os.path.join(tmp, "alert.md")
+    seoul_now = {"v": s1}
+    def ok_bank(prev, today): return {"value": 4.88, "period": "2026-09"}
+    def bad(prev, today): raise RuntimeError("down")
+    def seoul_src(prev, today): return {"value": seoul_now["v"]["all_apartments"], "period": "2026-11-03", "hash": seoul_now["v"]["hash"]}
+    pc.collect(out, alert, {"bank_rate": ok_bank, "seoul_toheoje": seoul_src}, date(2026, 11, 4))
+    assert not os.path.exists(alert)                      # 첫 수집은 비교 대상 없음
+    # 은행 소스 장애 + 서울 목록 변경 → 은행 값은 이전 것 유지, 변경 알림 생성
+    seoul_now["v"] = s2
+    res = pc.collect(out, alert, {"bank_rate": bad, "seoul_toheoje": seoul_src}, date(2026, 11, 5))
+    assert res["items"]["bank_rate"]["value"] == 4.88 and "bank_rate" in res["errors"]
+    assert "해제됨" in open(alert, encoding="utf-8").read()
+    # 전부 실패하면 파일을 건드리지 않음
+    before = open(out, encoding="utf-8").read()
+    try:
+        pc.collect(out, alert, {"bank_rate": bad}, date(2026, 11, 6))
+        raise AssertionError("전부 실패인데 통과")
+    except RuntimeError:
+        assert open(out, encoding="utf-8").read() == before
+# 금리 급변·범위 이상은 거부
+for v, prev in ((20.0, None), (7.0, {"value": 4.9})):
+    try:
+        pc._check_rate(v, prev)
+        raise AssertionError(f"금리 {v} 통과")
+    except ValueError:
+        pass
+
 print("test_collector OK")

@@ -223,10 +223,10 @@
           <div>
             <label for="globalPolicySelect" class="block text-[10px] text-rose-300 mb-0.5">③ 적용 정책·특례대출 혜택</label>
             <select id="globalPolicySelect" class="w-full rounded-lg px-2 py-1.5 bg-rose-950/80 border border-rose-500/50 text-rose-100 font-bold text-xs focus:outline-none focus:border-rose-400">
-              <option value="multi_child" selected>👨‍👩‍👧‍👦 다자녀 특례 (2자녀+ 우대)</option>
-              <option value="newborn">👶 신생아 특례 (1.8~3.3%·5억)</option>
-              <option value="first_time">🌱 생애최초 (LTV 80%·취득세감면)</option>
-              <option value="newlywed_loan">💑 신혼부부 특례 (저금리·증여공제)</option>
+              <option value="multi_child" selected>👨‍👩‍👧‍👦 다자녀 (2자녀+ 정책대출 우대)</option>
+              <option value="newborn">👶 신생아 특례 (2년 내 출산·최대 4억)</option>
+              <option value="first_time">🌱 생애최초 (LTV 70%·취득세 감면)</option>
+              <option value="newlywed_loan">💑 신혼부부 (정책대출·혼인 증여공제)</option>
               <option value="general">일반 가구 (시중은행 주담대)</option>
             </select>
           </div>
@@ -602,10 +602,10 @@
             <div>
               <label for="profilePolicySelect" class="block font-semibold text-slate-700 mb-1">3. 정부 정책·특례대출 자격 적용</label>
               <select id="profilePolicySelect" class="w-full border border-rose-200 rounded-lg px-2.5 py-1.5 bg-rose-50/60 font-semibold text-rose-900 focus:outline-none focus:ring-2 focus:ring-rose-500">
-                <option value="multi_child" selected>👨‍👩‍👧‍👦 다자녀 특례 (2자녀+ 취득세 감면·금리우대)</option>
-                <option value="newborn">👶 신생아 특례대출 (2년 내 출산 · 연 1.8~3.3% 최대 5억)</option>
-                <option value="first_time">🌱 생애최초 주택구입 (LTV 80% 완화 + 취득세 200만 감면)</option>
-                <option value="newlywed_loan">💑 신혼부부 전용 특례 (혼인 7년 내 저금리·증여 비과세)</option>
+                <option value="multi_child" selected>👨‍👩‍👧‍👦 다자녀 (2자녀+ 디딤돌·보금자리 한도 우대)</option>
+                <option value="newborn">👶 신생아 특례대출 (2년 내 출산 · 연 1.8~4.5% 최대 4억)</option>
+                <option value="first_time">🌱 생애최초 주택구입 (수도권 LTV 70% + 취득세 최대 200만 감면)</option>
+                <option value="newlywed_loan">💑 신혼부부 (혼인 7년 내 정책대출 · 혼인 증여공제 1억)</option>
                 <option value="general">일반 가구 (시중은행 주담대 스트레스 DSR 기준)</option>
               </select>
             </div>
@@ -1103,6 +1103,86 @@
 
     <!-- VIEW NEW: Korean Real Estate Policy Benefits Matcher & Beginner Safety Guardrail Page (viewPolicy) -->
     <div id="viewPolicy" class="hidden space-y-5">
+
+      <!-- Section 0: 상황별 자금 시뮬레이터 (policy.js 규칙표 기반) -->
+      <div id="scenarioSimSection" class="bg-white rounded-xl border border-indigo-200 p-4 sm:p-5 shadow-sm space-y-4 text-xs">
+        <div class="border-b border-slate-100 pb-3">
+          <span class="px-2.5 py-0.5 rounded-full bg-indigo-100 text-indigo-800 text-xs font-bold">기준일 정책 자동 적용</span>
+          <h2 class="text-base sm:text-xl font-bold text-slate-900 mt-1">🧭 상황별 자금 시뮬레이터 — 부모님 지원·결혼·출산하면 얼마까지 살 수 있을까?</h2>
+          <p class="text-xs text-slate-500 mt-0.5">가구 상황과 부모님 지원 계획을 넣으면 <strong>세금이 가장 적은 지원 방법</strong>, <strong>받을 수 있는 대출·감면</strong>, <strong>상황별 최대 매수가</strong>를 잔금 예정일에 유효한 정책으로 계산합니다. <span id="scPolicyVersion" class="text-slate-400"></span></p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
+          <fieldset class="p-3 rounded-lg bg-slate-50 border border-slate-200 grid grid-cols-2 gap-2">
+            <legend class="px-1 font-bold text-slate-800">① 우리 집 상황</legend>
+            <label class="space-y-0.5"><span class="block text-slate-600">주택 보유</span>
+              <select id="scHomes" class="w-full rounded border border-slate-300 px-2 py-1 bg-white">
+                <option value="0">무주택</option><option value="1">1주택 (기존 집 처분 예정)</option>
+              </select></label>
+            <label class="space-y-0.5"><span class="block text-slate-600">혼인</span>
+              <select id="scMarried" class="w-full rounded border border-slate-300 px-2 py-1 bg-white">
+                <option value="single">미혼</option><option value="planned">결혼 예정 (2년 내 혼인신고)</option>
+                <option value="within7">혼인 7년 이내</option><option value="over7">혼인 7년 초과</option>
+              </select></label>
+            <label class="space-y-0.5"><span class="block text-slate-600">자녀 수</span>
+              <select id="scChildren" class="w-full rounded border border-slate-300 px-2 py-1 bg-white">
+                <option value="0">없음</option><option value="1">1명</option><option value="2">2명</option><option value="3">3명 이상</option>
+              </select></label>
+            <label class="space-y-0.5"><span class="block text-slate-600">기존 대출 월 상환액</span>
+              <span class="flex items-center gap-1"><input id="scOtherDebt" type="number" min="0" step="10" class="w-full rounded border border-slate-300 px-2 py-1" /><span class="text-slate-500 shrink-0">만원</span></span></label>
+            <label class="flex items-center gap-1.5"><input id="scFirstTime" type="checkbox" class="accent-indigo-600" /> 생애최초 (세대원 전원 집 가져본 적 없음)</label>
+            <label class="flex items-center gap-1.5"><input id="scNewborn" type="checkbox" class="accent-indigo-600" /> 2년 내 출산·입양 (예정 포함)</label>
+            <label class="flex items-center gap-1.5"><input id="scDual" type="checkbox" class="accent-indigo-600" /> 맞벌이</label>
+            <label class="space-y-0.5"><span class="block text-slate-600">잔금(대출 실행) 예정일</span>
+              <input id="scClosingDate" type="date" class="w-full rounded border border-slate-300 px-2 py-1" /></label>
+          </fieldset>
+
+          <fieldset class="p-3 rounded-lg bg-amber-50/60 border border-amber-200 grid grid-cols-2 gap-2">
+            <legend class="px-1 font-bold text-slate-800">② 부모님 지원 계획</legend>
+            <label class="space-y-0.5 col-span-2"><span class="block text-slate-600">지원 받을 총액 (양가 합산)</span>
+              <span class="flex items-center gap-1"><input id="scParentAmt" type="number" min="0" max="30" step="0.1" class="w-full rounded border border-amber-300 px-2 py-1 font-bold" /><span class="text-slate-500 shrink-0">억 원</span></span></label>
+            <label class="space-y-0.5"><span class="block text-slate-600">10년 내 이미 받은 증여</span>
+              <span class="flex items-center gap-1"><input id="scPriorGift" type="number" min="0" max="10" step="0.1" class="w-full rounded border border-amber-300 px-2 py-1" /><span class="text-slate-500 shrink-0">억</span></span></label>
+            <label class="space-y-0.5"><span class="block text-slate-600">빌린 돈 상환 기간</span>
+              <span class="flex items-center gap-1"><input id="scLoanYears" type="number" min="1" max="40" step="1" class="w-full rounded border border-amber-300 px-2 py-1" /><span class="text-slate-500 shrink-0">년</span></span></label>
+            <label class="flex items-center gap-1.5 col-span-2"><input id="scParentSplit" type="checkbox" class="accent-amber-600" /> 부부가 각자 자기 부모님께 나눠 받기</label>
+            <label class="flex items-center gap-1.5 col-span-2"><input id="scMarriageBirth" type="checkbox" class="accent-amber-600" /> 혼인·출산 증여공제 쓰기 (혼인신고 전후 2년 또는 출생 2년 내 증여)</label>
+            <label class="flex items-center gap-1.5 col-span-2"><input id="scAllowLoan" type="checkbox" class="accent-amber-600" /> 공제 넘는 금액은 차용(빌리기)으로 받기 — 차용증 쓰고 실제로 갚는 경우만</label>
+            <p class="col-span-2 text-[10px] text-slate-500">‘내 현금 계산기’에 부모님 지원을 이미 넣었다면 여기는 0으로 두세요.</p>
+          </fieldset>
+        </div>
+
+        <div id="scParentResult" class="p-3 rounded-lg bg-white border border-amber-300"></div>
+
+        <div>
+          <div class="font-bold text-slate-900 text-sm mb-1.5">📊 상황별 비교 — 무엇이 바뀌면 얼마까지 살 수 있나</div>
+          <div class="overflow-x-auto rounded-lg border border-slate-200">
+            <table class="w-full min-w-[640px] text-left">
+              <thead class="bg-slate-100 text-slate-700"><tr>
+                <th class="px-2 py-1.5">상황</th><th class="px-2 py-1.5">쓸 수 있는 현금</th><th class="px-2 py-1.5">대출</th>
+                <th class="px-2 py-1.5">최대 매수가<br><span class="font-normal text-[10px]">규제지역 기준</span></th><th class="px-2 py-1.5">월 상환</th>
+                <th class="px-2 py-1.5">실거주 가능 동네</th><th class="px-2 py-1.5"></th></tr></thead>
+              <tbody id="scScenarioRows"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div>
+          <div class="font-bold text-slate-900 text-sm mb-1.5">💡 합법적으로 세금 아끼는 팁 & ⚠️ 주의사항 <span class="font-normal text-slate-500">(지금 상황에 해당하는 것만)</span></div>
+          <div id="scTipsList" class="grid grid-cols-1 md:grid-cols-2 gap-2"></div>
+        </div>
+        <details class="rounded-lg border border-slate-200 bg-slate-50/60">
+          <summary class="cursor-pointer px-3 py-2 font-bold text-slate-800">📡 이 계산에 쓴 정책 데이터와 출처 <span id="scSourceSummary" class="font-normal text-slate-500"></span></summary>
+          <div class="overflow-x-auto px-3 pb-3">
+            <table class="w-full min-w-[560px] text-left">
+              <thead class="text-slate-500"><tr><th class="py-1 pr-2">항목</th><th class="py-1 pr-2">값</th><th class="py-1 pr-2">방식</th><th class="py-1">출처 · 기준일</th></tr></thead>
+              <tbody id="scSourceRows"></tbody>
+            </table>
+            <p class="mt-1.5 text-[10px] text-slate-500"><strong>자동</strong>은 매일 06시 한국은행·주택금융공사·서울시 공개 데이터에서 직접 받아온 값, <strong>수동 확인</strong>은 공식 발표를 사람이 확인해 넣은 값입니다(60일이 지나면 재확인 표시). 서울 허가구역 목록이 바뀌면 운영자에게 자동 알림이 갑니다.</p>
+          </div>
+        </details>
+        <p class="text-[10px] text-slate-400 leading-relaxed">본 계산은 공개된 법령·정책을 단순화한 모의계산이며 세무·금융 자문이 아닙니다. 실제 대출 한도는 금융기관 심사, 세금은 개별 사실관계에 따라 달라지므로 실행 전 은행·세무사에게 확인하세요.</p>
+      </div>
 
       <!-- Section 1: Personalized Korean Real Estate Policy & Subsidy Matcher -->
       <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-4">
@@ -1967,6 +2047,7 @@
     </div>
   </div>
 
+  <script src="policy.js"></script>
   <script>
     // 37 Metropolitan Areas Dataset with Geographical Coordinates and Facility Tags
     const DISTRICTS = [
@@ -2499,23 +2580,36 @@
       newsSyncCount: 0,
       mapColorMode: 'tier',
       areaSize: 84,
-      remodelCostEok: 0.25
+      remodelCostEok: 0.25,
+      // 정책 엔진(policy.js) 입력: 가구 사실관계 · 부모 지원 · 정책 기준일
+      facts: { homes: 0, firstTime: true, married: 'within7', children: 2, newborn2y: false, dualIncome: true, otherDebtMonthly: 0 },
+      parent: { amount: 0, split: false, priorGift: 0, marriageBirth: false, allowLoan: true, loanYears: 20 },
+      closingDate: new Date(Date.now() + 90 * 864e5).toISOString().slice(0, 10)
     };
 
     let radarChartInstance = null;
     let scatterChartInstance = null;
     let txTrendChartInstance = null;
 
-    // Calculate mortgage loan limit & policy bonus based on income and policy eligibility
-    function calcLoanLimit(incomeManWon) {
-      const p = state.profile.policy;
-      let multiplier = 5.0; // Standard Stress DSR
-      if (p === 'newborn') multiplier = 5.6;       // 신생아 특례 DSR 배제/완화 우대
-      else if (p === 'first_time') multiplier = 5.4; // 생애최초 LTV 80% 우대
-      else if (p === 'multi_child' || p === 'newlywed_loan') multiplier = 5.3;
+    // 정책대출 순자산 심사는 내 현금(state.seed)을 근사치로 사용
+    function currentFacts(income = state.income) {
+      return { ...state.facts, income, assets: state.seed };
+    }
+    // 계약일 ≈ 오늘 (토지거래허가는 계약 때 판정). 대출·세금은 잔금일 state.closingDate 기준
+    function contractDate() {
+      return new Date().toLocaleDateString('sv');
+    }
+    function currentParentPlan() {
+      return PolicyEngine.parentPlan(state.parent, state.facts, state.closingDate);
+    }
+    // 매수에 쓸 수 있는 총현금 = 내 현금 + 부모 지원 실수령(세후)
+    function availableCash() {
+      return Math.round((state.seed + currentParentPlan().net) * 10) / 10;
+    }
 
-      const dsrLimit = (incomeManWon / 10000) * multiplier;
-      return Math.round(Math.min(12.5, Math.max(1.5, dsrLimit)) * 10) / 10;
+    // 시중은행 주담대 최대치 (policy.js 규칙: 구간 한도 · DSR 40% · 스트레스 금리)
+    function calcLoanLimit(incomeManWon) {
+      return PolicyEngine.loanCeiling(currentFacts(incomeManWon), state.closingDate);
     }
 
     // Automatically compute weights when family, child age, or preferred facilities change
@@ -2624,12 +2718,10 @@
     function getEnrichedDistricts() {
       const w = state.weights;
       const totalW = (w.job + w.edu + w.prod + w.infra + w.future) || 100;
-      const loanLimit = calcLoanLimit(state.income);
       const selectedFacs = state.profile.facilities || [];
-      const policy = state.profile.policy;
-
-      // Tax discount rate from policy (생애최초/다자녀 취득세 감면 반영)
-      const acqCostRate = (policy === 'first_time' || policy === 'multi_child' || policy === 'newborn') ? 0.018 : 0.025;
+      const facts = currentFacts();
+      const cash = availableCash();
+      const date = state.closingDate;
 
       const list = DISTRICTS.map(d => {
         const baseScore = (
@@ -2677,23 +2769,27 @@
         const bandLow = Math.round(adjSale * 0.82 * 10) / 10;
         const bandHigh = Math.round(adjSale * 1.22 * 10) / 10;
 
-        // LTV cap (생애최초는 규제지역 무관 최대 70~80% 완화 적용 시뮬레이션)
-        let ltvRatio = (d.scope === 'seoul' && d.tier === 1) ? 0.50 : 0.60;
-        if (policy === 'first_time' && adjSale <= 15.0) ltvRatio = 0.70;
-
-        const maxLoanForDistrict = Math.min(loanLimit, Math.round(adjSale * ltvRatio * 10) / 10);
-        const needLiveCash = Math.round((adjSale - maxLoanForDistrict + adjSale * acqCostRate) * 10) / 10;
-        const needGapCash = Math.round((adjSale - adjJeonse + adjSale * acqCostRate) * 10) / 10;
+        // 대출·취득세·부대비용은 policy.js 규칙(기준일 state.closingDate)으로 계산
+        const regulated = PolicyEngine.isRegulated(d, date);
+        const toheoje = PolicyEngine.isToheoje(d, contractDate());  // 허가는 계약 시점에 필요
+        const cn = PolicyEngine.cashNeeded({ price: adjSale, regulated, f: facts, date, areaSize: state.areaSize });
+        const maxLoanForDistrict = cn.loan.amount;
+        const needLiveCash = cn.need;
+        const needGapCash = Math.round((adjSale - adjJeonse + cn.tax.total + cn.fee) * 10) / 10;
         const jeonseRatio = Math.round((adjJeonse / adjSale) * 1000) / 10;
 
-        const canLive = state.seed >= needLiveCash;
-        const canGap = !d.toheoje && (state.seed >= needGapCash);
-        const canGapCashOnly = state.seed >= needGapCash;
+        const canLive = cash >= needLiveCash;
+        const canGap = !toheoje && (cash >= needGapCash);
+        const canGapCashOnly = cash >= needGapCash;
 
         const valueRatio = customScore / Math.pow(adjSale, 0.45);
 
         return {
           ...d,
+          toheoje,
+          regulated,
+          loanProduct: cn.loan,
+          acqTax: cn.tax,
           sale84: adjSale,
           jeonse84: adjJeonse,
           bandLow,
@@ -2720,6 +2816,146 @@
       });
 
       return list;
+    }
+
+    // ===== 상황별 자금 시뮬레이터 (policy.js) =====
+    const SC_FIELDS = {
+      scHomes: ['facts', 'homes', 'num'], scMarried: ['facts', 'married', 'str'], scChildren: ['facts', 'children', 'num'],
+      scOtherDebt: ['facts', 'otherDebtMonthly', 'num'], scFirstTime: ['facts', 'firstTime', 'bool'],
+      scNewborn: ['facts', 'newborn2y', 'bool'], scDual: ['facts', 'dualIncome', 'bool'],
+      scParentAmt: ['parent', 'amount', 'num'], scPriorGift: ['parent', 'priorGift', 'num'], scLoanYears: ['parent', 'loanYears', 'num'],
+      scParentSplit: ['parent', 'split', 'bool'], scMarriageBirth: ['parent', 'marriageBirth', 'bool'], scAllowLoan: ['parent', 'allowLoan', 'bool']
+    };
+    let lastScenarios = [];
+
+    function syncScenarioInputs() {
+      Object.entries(SC_FIELDS).forEach(([id, [grp, key, type]]) => {
+        const el = document.getElementById(id);
+        if (el) type === 'bool' ? (el.checked = !!state[grp][key]) : (el.value = state[grp][key]);
+      });
+      const dEl = document.getElementById('scClosingDate');
+      if (dEl) dEl.value = state.closingDate;
+    }
+
+    function initScenarioSim() {
+      syncScenarioInputs();
+      Object.entries(SC_FIELDS).forEach(([id, [grp, key, type]]) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.addEventListener(type === 'num' && el.tagName === 'INPUT' ? 'input' : 'change', () => {
+          state[grp][key] = type === 'bool' ? el.checked : type === 'num' ? Math.max(0, Number(el.value) || 0) : el.value;
+          state.parent.loanYears = Math.max(1, state.parent.loanYears);
+          renderAll();
+        });
+      });
+      const dEl = document.getElementById('scClosingDate');
+      if (dEl) dEl.addEventListener('change', () => { if (dEl.value) { state.closingDate = dEl.value; renderAll(); } });
+      const rows = document.getElementById('scScenarioRows');
+      if (rows) rows.addEventListener('click', e => {
+        const btn = e.target.closest('[data-sc]');
+        if (!btn) return;
+        const sc = lastScenarios[Number(btn.dataset.sc)];
+        Object.assign(state.facts, sc.facts);
+        Object.assign(state.parent, sc.parent);
+        syncScenarioInputs();
+        renderAll();
+      });
+    }
+
+    // 상단·사이드바의 정책 선택 → 가구 사실 기본값 (세부 조건은 시뮬레이터에서 조정)
+    function applyPolicyPreset(p) {
+      const f = state.facts;
+      if (p === 'newborn') { f.newborn2y = true; f.children = Math.max(1, f.children); }
+      else if (p === 'first_time') { f.firstTime = true; f.homes = 0; }
+      else if (p === 'multi_child') f.children = Math.max(2, f.children);
+      else if (p === 'newlywed_loan') f.married = 'within7';
+      else if (p === 'general') { f.firstTime = false; f.newborn2y = false; }
+      syncScenarioInputs();
+    }
+
+    function runScenario(enriched, label, factsPatch = {}, parentPatch = {}, rateBump = 0) {
+      const date = state.closingDate;
+      const facts = { ...state.facts, ...factsPatch };
+      const parent = { ...state.parent, ...parentPatch };
+      const f = { ...facts, income: state.income, assets: state.seed };
+      const plan = PolicyEngine.parentPlan(parent, facts, date);
+      const cash = Math.round((state.seed + plan.net) * 10) / 10;
+      const base = { regulated: true, f, date, areaSize: state.areaSize };
+      const maxP = PolicyEngine.maxPrice(cash, base);
+      const loan = PolicyEngine.cashNeeded({ ...base, price: Math.max(maxP, 0.5) }).loan;
+      const pay = bump => Math.round(PolicyEngine.monthlyPayment(loan.amount, loan.rate + bump, loan.years) * 10000) + plan.loanMonthlyMan;
+      const affordable = enriched
+        .filter(d => PolicyEngine.cashNeeded({ price: d.sale84, regulated: d.regulated, f, date, areaSize: state.areaSize }).need <= cash)
+        .sort((a, b) => b.customScore - a.customScore);
+      return { label, facts, parent, cash, plan, maxP, loan, rateBump, monthlyMan: pay(rateBump), rateUpMan: pay(rateBump + 0.01) - pay(rateBump), affordable };
+    }
+
+    function renderScenarioSim(enriched, selected) {
+      if (!document.getElementById('scenarioSimSection')) return;
+      const P = state.parent, F = state.facts, date = state.closingDate;
+      const fmtMan = eok => (Math.round(eok * 10000) > 0 ? `${Math.round(eok * 10000).toLocaleString()}만 원` : '0원');
+      const plan = currentParentPlan();
+      const maxFree = PolicyEngine.parentPlan({ ...P, allowLoan: true }, F, date).taxFreeMax;
+
+      document.getElementById('scPolicyVersion').textContent = `(정책 규칙 ${PolicyEngine.POLICY.updated} 갱신 · 기준일 ${date})`;
+
+      const perRows = plan.rows.length > 1
+        ? `<div class="mt-1.5 grid grid-cols-1 sm:grid-cols-2 gap-2">${plan.rows.map(r => `<div class="p-2 rounded bg-amber-50 border border-amber-200">${r.who}: 증여 ${r.gift.toFixed(2)}억(공제 ${r.exempt.toFixed(2)}억) · 차용 ${r.loan.toFixed(2)}억 · 세금 ${fmtMan(r.tax)}</div>`).join('')}</div>`
+        : '';
+      document.getElementById('scParentResult').innerHTML = P.amount > 0
+        ? `<div class="font-bold text-slate-900 text-sm">👪 부모님 지원 ${P.amount.toFixed(1)}억 → 증여 ${plan.gift.toFixed(2)}억 + 차용 ${plan.loan.toFixed(2)}억</div>
+           <div class="mt-1 text-slate-700">예상 증여세 <strong class="text-rose-600">${fmtMan(plan.tax)}</strong> (기한 내 신고 3% 공제 반영) · 매수에 쓸 돈 <strong class="text-emerald-700">${plan.net.toFixed(2)}억</strong>${plan.loan > 0 ? ` · 부모님께 갚을 돈 월 약 ${plan.loanMonthlyMan.toLocaleString()}만 원(${plan.loanYears}년)` : ''}</div>
+           ${plan.taxIfAllGift > plan.tax ? `<div class="mt-0.5 text-emerald-700 font-semibold">전부 증여로 받으면 세금 ${fmtMan(plan.taxIfAllGift)} → 이 구조로 ${fmtMan(plan.taxIfAllGift - plan.tax)} 절약</div>` : ''}
+           ${perRows}
+           <div class="mt-1 text-slate-500">지금 조건에서 세금 없이 받을 수 있는 최대: <strong>${maxFree.toFixed(2)}억</strong> (증여공제 + 무이자 차용 약 ${plan.freeLoan.toFixed(2)}억)</div>`
+        : `<div class="text-slate-700">부모님 지원 금액을 넣으면 세금이 가장 적은 방법을 계산합니다. 지금 조건에서 <strong>세금 없이 받을 수 있는 최대는 ${maxFree.toFixed(2)}억</strong>입니다 (증여공제${P.marriageBirth ? '·혼인출산공제' : ''} + 무이자 차용 약 ${plan.freeLoan.toFixed(2)}억${P.split && F.married !== 'single' ? ', 부부 각자' : ''}).</div>`;
+
+      const defs = [['지금 입력 그대로', {}, {}]];
+      if (P.amount > 0) defs.push(['부모 지원 없이', {}, { amount: 0 }]);
+      if (P.amount > 0 && P.allowLoan) defs.push(['같은 금액을 전부 증여로', {}, { allowLoan: false }]);
+      if (Math.abs(P.amount - maxFree) > 0.01) defs.push([`세금 0원 최대 지원 (${maxFree.toFixed(2)}억)`, {}, { amount: maxFree, allowLoan: true }]);
+      if (F.married !== 'single' && !P.split) defs.push(['부부가 각자 부모님께 받기', {}, { split: true }]);
+      if (!P.marriageBirth && (F.married === 'planned' || F.married === 'within7' || F.newborn2y)) defs.push(['혼인·출산 증여공제 활용', {}, { marriageBirth: true }]);
+      if (F.homes === 0 && !F.newborn2y && F.married !== 'single') defs.push(['2년 내 출산 시', { newborn2y: true, children: Math.min(3, F.children + 1) }, { marriageBirth: true }]);
+      if (F.homes === 0 && !F.firstTime) defs.push(['생애최초 요건 충족 시', { firstTime: true }, {}]);
+      defs.push(['금리가 1%p 오르면', {}, {}, 0.01]);
+      lastScenarios = defs.map(([label, fp, pp, bump]) => runScenario(enriched, label, fp, pp, bump || 0));
+
+      const baseMax = lastScenarios[0].maxP;
+      document.getElementById('scScenarioRows').innerHTML = lastScenarios.map((s, i) => {
+        const diff = Math.round((s.maxP - baseMax) * 10) / 10;
+        const names = s.affordable.slice(0, 2).map(d => d.name.replace(' (경기)', '')).join(', ');
+        return `<tr class="border-t border-slate-100 ${i === 0 ? 'bg-indigo-50/50 font-semibold' : ''}">
+          <td class="px-2 py-1.5">${s.label}</td>
+          <td class="px-2 py-1.5">${s.cash.toFixed(1)}억${s.plan.net > 0 ? `<div class="text-[10px] text-slate-500">부모 ${s.plan.net.toFixed(2)}억${s.plan.tax > 0 ? ` (세금 ${fmtMan(s.plan.tax)})` : ''}</div>` : ''}</td>
+          <td class="px-2 py-1.5">${s.loan.amount.toFixed(1)}억<div class="text-[10px] text-slate-500">${s.loan.name}</div></td>
+          <td class="px-2 py-1.5 font-bold text-indigo-700">${s.maxP.toFixed(1)}억${i > 0 && diff !== 0 ? `<span class="ml-1 text-[10px] ${diff > 0 ? 'text-emerald-600' : 'text-rose-600'}">${diff > 0 ? '+' : ''}${diff.toFixed(1)}</span>` : ''}</td>
+          <td class="px-2 py-1.5">${s.monthlyMan.toLocaleString()}만<div class="text-[10px] text-slate-500">월소득의 ${Math.round(s.monthlyMan / (state.income / 12) * 100)}%</div></td>
+          <td class="px-2 py-1.5">${s.affordable.length}곳<div class="text-[10px] text-slate-500">${names || '—'}</div></td>
+          <td class="px-2 py-1.5">${i > 0 && !s.rateBump ? `<button type="button" data-sc="${i}" class="px-2 py-1 rounded bg-indigo-600 text-white font-bold text-[11px] hover:bg-indigo-700">적용</button>` : ''}</td>
+        </tr>`;
+      }).join('');
+
+      const srcs = PolicyEngine.dataSources(new Date().toLocaleDateString('sv'));
+      const autoN = srcs.filter(s => s.kind === 'auto').length, staleN = srcs.filter(s => s.stale).length;
+      document.getElementById('scSourceSummary').textContent = `(자동 ${autoN}개 · 수동 확인 ${srcs.length - autoN}개${staleN ? ` · 재확인 필요 ${staleN}개` : ''})`;
+      document.getElementById('scSourceRows').innerHTML = srcs.map(s => `
+        <tr class="border-t border-slate-200 align-top">
+          <td class="py-1.5 pr-2 font-semibold text-slate-800">${s.label}</td>
+          <td class="py-1.5 pr-2 text-slate-700">${s.value}</td>
+          <td class="py-1.5 pr-2"><span class="px-1.5 py-0.5 rounded text-[10px] font-bold ${s.kind === 'auto' ? 'bg-emerald-100 text-emerald-800' : s.stale ? 'bg-rose-100 text-rose-800' : 'bg-slate-200 text-slate-700'}">${s.kind === 'auto' ? '자동' : s.stale ? '재확인 필요' : '수동 확인'}</span></td>
+          <td class="py-1.5 text-slate-600">${s.url ? `<a href="${s.url}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">${s.source}</a>` : s.source}<div class="text-[10px] text-slate-400">${s.kind === 'auto' ? `기준 ${s.asOf} · 수집 ${s.fetched}` : `확인일 ${s.asOf}`}</div></td>
+        </tr>`).join('');
+
+      const now = lastScenarios[0];
+      const ctx = { plan, region: selected, loan: selected.loanProduct, monthlyMan: now.monthlyMan, rateUpMan: now.rateUpMan,
+        incomeMonthlyMan: Math.round(state.income / 12), date };
+      document.getElementById('scTipsList').innerHTML = PolicyEngine.tipsFor(F, P, ctx).map(t => `
+        <div class="p-2.5 rounded-lg border ${t.kind === 'warn' ? 'bg-rose-50/60 border-rose-200' : 'bg-emerald-50/60 border-emerald-200'}">
+          <div class="font-bold ${t.kind === 'warn' ? 'text-rose-800' : 'text-emerald-800'}">${t.kind === 'warn' ? '⚠️' : '💡'} ${t.title}</div>
+          <p class="text-slate-700 mt-0.5 leading-relaxed">${t.body}</p>
+          <div class="text-[10px] text-slate-400 mt-0.5">근거: ${t.src}</div>
+        </div>`).join('');
     }
 
     function getTierBadgeHtml(tier, scope) {
@@ -2754,94 +2990,85 @@
 
     // Render Korean Real Estate Policy Benefits & Beginner Safety Guardrail Page (viewPolicy)
     function renderPolicyAndSafetyView(enriched, selected) {
-      const pol = state.profile.policy;
-      const fam = state.profile.family;
-      const loanLim = calcLoanLimit(state.income);
 
-      // Update Top Banner Policy Summary
+      // 혜택 카드·상단 배너: policy.js 규칙으로 선택 지역 기준 계산
+      const date = state.closingDate;
+      const facts = currentFacts();
+      const plan = currentParentPlan();
+      const best = selected.loanProduct;
+      const bankRule = PolicyEngine.pick(PolicyEngine.POLICY.bankLoan, date);
+      const fmtMan = eok => (Math.round(eok * 10000) > 0 ? `${Math.round(eok * 10000).toLocaleString()}만 원` : '0원');
+      const relief = selected.acqTax.relief;
+      const interestSave = best.id === 'bank' ? 0 : Math.max(0, (bankRule.rate - best.rate) * best.amount * 5);
+      const giftSave = Math.max(0, plan.taxIfAllGift - plan.tax);
+      const totalSave = interestSave + (relief ? relief.amount : 0) + giftSave;
+
       const bannerTag = document.getElementById('bannerPolicyTag');
       const bannerBenefit = document.getElementById('bannerPolicyBenefit');
       const bannerSub = document.getElementById('bannerPolicySub');
-
-      const policyMeta = {
-        newborn: { tag: '👶 신생아 특례 적용', title: '연 1.8~3.3% 저금리 최대 5억', sub: '5년간 이자 약 3,500만 원+ 절감 & DSR 배제', totalSave: '약 4,200만 원 절감 효과' },
-        first_time: { tag: '🌱 생애최초 특례 적용', title: 'LTV 최대 80% + 취득세 감면', sub: '취득세 200만 감면 & 대출한도 확대 적용', totalSave: '약 1,800만 원+ 혜택' },
-        multi_child: { tag: '👨‍👩‍👧‍👦 다자녀 특례 적용', title: '금리 우대 + 다자녀 세제혜택', sub: '4인 이상 다자녀 청약·취득세·금리 우대 반영', totalSave: '약 3,200만 원 절감 효과' },
-        newlywed_loan: { tag: '💑 신혼부부 특례 적용', title: '신혼 저금리 + 증여 3억 공제', sub: '혼인 7년 내 특례모기지 & 양가 증여세 면제', totalSave: '약 2,900만 원 절감 효과' },
-        general: { tag: '일반 가구 기준', title: '시중은행 주담대 + 1주택 비과세', sub: '일시적 2주택 갈아타기 3년 유예 비과세 적용', totalSave: '갈아타기 비과세 혜택' }
-      };
-
-      const curMeta = policyMeta[pol] || policyMeta.general;
-      if (bannerTag) bannerTag.textContent = curMeta.tag;
-      if (bannerBenefit) bannerBenefit.textContent = curMeta.title;
-      if (bannerSub) bannerSub.textContent = curMeta.sub;
+      if (bannerTag) bannerTag.textContent = best.id === 'bank' ? '시중은행 주담대 기준' : `✓ ${best.name} 적용`;
+      if (bannerBenefit) bannerBenefit.textContent = `대출 최대 ${best.amount.toFixed(1)}억 · ${best.rateText || `연 ${(best.rate * 100).toFixed(1)}%`}`;
+      if (bannerSub) bannerSub.textContent = relief ? `${relief.name} ${fmtMan(relief.amount)}` : (selected.regulated ? `${selected.name} 규제지역 한도 적용` : `${selected.name} 비규제지역`);
       const totalSavEl = document.getElementById('policyTotalSavingText');
-      if (totalSavEl) totalSavEl.textContent = curMeta.totalSave;
+      if (totalSavEl) totalSavEl.textContent = totalSave > 0 ? `약 ${fmtMan(totalSave)} 절감 효과` : '현재 조건 추가 혜택 없음';
 
-      // 6 Korean Policy Cards
-      const policiesList = [
-        {
-          key: 'newborn',
-          badge: pol === 'newborn' ? '현재 선택 적용 중 ✓' : '출산·입양 가구 특례',
-          active: pol === 'newborn',
-          title: '1. 신생아 특례 디딤돌·버팀목 대출',
-          benefit: '최대 5억 원 · 연 1.8% ~ 3.3% 저금리 (5년간)',
-          desc: '대출 신청일 기준 2년 내 출산·입양한 가구(신혼·다자녀 포함)에게 시중은행(4.2%+) 대비 1.5%p 이상 낮은 금리로 자금을 지원하며, 스트레스 DSR 규제에서 제외되어 한도가 넉넉합니다.'
-        },
-        {
-          key: 'first_time',
-          badge: pol === 'first_time' ? '현재 선택 적용 중 ✓' : '무주택 첫 내집마련',
-          active: pol === 'first_time',
-          title: '2. 생애최초 주택구입 LTV 80% & 취득세 감면',
-          benefit: 'LTV 최대 80% 완화 + 취득세 최대 200만 원 면제',
-          desc: '세대원 전원 생애 최초 주택 구입 시 규제지역 여부와 무관하게 LTV가 완화(최대 6억 한도)되며, 12억 이하 주택 구입 시 취득세를 최대 200만 원까지 즉시 감면받습니다.'
-        },
-        {
-          key: 'multi_child',
-          badge: (pol === 'multi_child' || fam === 'family4') ? '우리 가족 해당 ✓' : '2자녀 이상 가구',
-          active: pol === 'multi_child' || fam === 'family4',
-          title: '3. 다자녀 가구(2자녀+) 대출·세제·청약 특례',
-          benefit: '특례대출 우대금리 추가 인하 + 다자녀 특별공급',
-          desc: '기존 3자녀에서 2자녀 이상(4인 가족)으로 다자녀 기준이 대폭 완화되어, 정책모기지 금리 인하(자녀당 0.2%p), 공공·민영분양 다자녀 특별공급, 양육비·교육비 세액공제를 받습니다.'
-        },
-        {
-          key: 'newlywed_loan',
-          badge: (pol === 'newlywed_loan' || fam === 'newlywed') ? '신혼·예비부부 해당 ✓' : '혼인 7년 이내',
-          active: pol === 'newlywed_loan' || fam === 'newlywed',
-          title: '4. 신혼부부 특례대출 & 결혼·출산 증여세 공제',
-          benefit: '양가 합산 최대 3억 원까지 부모님 증여세 0원',
-          desc: '기본 증여공제(5천만 원) 외에 결혼·출산 시 각각 1억 원씩 추가 공제되어 부부 합산 최대 3억 원까지 증여세 없이 종잣돈을 지원받을 수 있습니다.'
-        },
-        {
-          key: 'transfer_tax',
-          badge: '1주택 갈아타기 필수 정책',
-          active: true,
-          title: '5. 일시적 1가구 2주택 갈아타기 비과세 (3년 유예)',
-          benefit: '매도가 12억까지 양도세 0원 + 장특공제 최대 80%',
-          desc: '기존 집을 산 지 1년 이상 지난 뒤 새 집을 먼저 사더라도, 새 집 취득일로부터 3년 이내에 기존 집을 팔면 1주택자로 인정받아 양도소득세가 비과세됩니다.'
-        },
-        {
-          key: 'toheoje_dsr',
-          badge: selected.toheoje ? `${selected.name} 주의 필요 ⚠️` : '수도권 규제 체크',
-          active: selected.toheoje,
-          title: '6. 토지거래허가구역 & 스트레스 DSR 방어',
-          benefit: selected.toheoje ? `${selected.name} 주요 단지 2년 실거주 의무` : `${selected.name}은 갭투자·전세 레버리지 가능`,
-          desc: '강남·서초·송파·용산·목동 주요 재건축 단지는 토지거래허가구역으로 지정되어 전세를 끼고 살 수 없으며, 시중은행 주담대는 스트레스 금리 가산으로 한도가 약 10~15% 축소됩니다.'
-        }
-      ];
+      const loanOpts = PolicyEngine.loanOptions({ price: selected.sale84, regulated: selected.regulated, f: facts, date, areaSize: state.areaSize });
+      const cards = loanOpts.map(o => ({
+        active: o.eligible,
+        badge: o.id === best.id ? '추천 · 가장 많이 빌림 ✓' : o.eligible ? '조건 충족' : '해당 없음',
+        title: o.name,
+        benefit: o.eligible ? `최대 ${o.amount.toFixed(1)}억 · ${o.rateText || `연 ${(o.rate * 100).toFixed(1)}%`}` : (o.reasons || []).join(' · '),
+        desc: `${o.note}. ${selected.name} ${selected.sale84.toFixed(1)}억 기준.`,
+        src: o.src
+      }));
+      PolicyEngine.POLICY.acqRelief.forEach(x => {
+        const live = (!x.from || x.from <= date) && (!x.until || date <= x.until);
+        const ok = live && x.need(facts) && selected.sale84 <= x.priceMax;
+        cards.push({
+          active: ok,
+          badge: !live ? `기준일에 시행 안 됨 (${x.from}~${x.until || ''})` : ok ? '감면 적용 ✓' : '해당 없음',
+          title: x.name,
+          benefit: ok ? `취득세 ${fmtMan(relief && relief.id === x.id ? relief.amount : Math.min(x.max, selected.acqTax.base))} 감면` : `${x.priceMax}억 이하 주택 · 최대 ${fmtMan(x.max)}`,
+          desc: `감면은 중복되지 않아 가장 큰 하나만 적용됩니다. 이 집 취득세(지방교육세 포함) 약 ${fmtMan(selected.acqTax.base)}.`,
+          src: x.src
+        });
+      });
+      cards.push({
+        active: plan.taxFreeMax > 0,
+        badge: plan.loan > 0 || state.parent.marriageBirth ? '부모 지원 설계 반영 ✓' : '부모 지원 시',
+        title: '부모님 지원 증여공제·차용',
+        benefit: `세금 없이 최대 ${plan.taxFreeMax.toFixed(2)}억`,
+        desc: `1인당 기본공제 5천만 원(10년)${state.parent.marriageBirth ? ' + 혼인·출산 1억' : ''}${state.parent.allowLoan ? ` + 무이자 차용 약 ${plan.freeLoan.toFixed(2)}억` : ''}. 위 시뮬레이터에서 조건을 바꿔 보세요.`,
+        src: '상증법 제53조·제53조의2·제41조의4'
+      });
+      cards.push({
+        active: selected.toheoje || selected.regulated,
+        badge: selected.toheoje ? `${selected.name} 허가구역 ⚠️` : selected.regulated ? '규제지역' : '비규제지역',
+        title: '규제지역 · 토지거래허가구역',
+        benefit: selected.toheoje ? '허가 후 2년 실거주 의무 · 갭투자 불가' : selected.regulated ? 'LTV·대출 한도 제한' : '일반 LTV 적용',
+        desc: `주담대 LTV ${Math.round(bankRule.ltv[selected.regulated ? 'regulated' : 'normal'][facts.homes === 0 && facts.firstTime ? 'first' : 'none'] * 100)}%, 시가 구간별 한도(15억 이하 6억 · 25억 이하 4억 · 초과 2억), 6개월 내 전입 의무.`,
+        src: bankRule.src
+      });
+      if (facts.homes === 1) cards.push({
+        active: true, badge: '1주택 갈아타기', title: '일시적 1가구 2주택 비과세',
+        benefit: '조정대상지역 간 갈아타기는 2년 안에 기존 집 매도',
+        desc: '기존 집을 산 지 1년 지나 새 집을 사고 기한 안에 기존 집을 팔면 1주택처럼 양도세 비과세(12억 한도)를 받습니다. 조정대상지역 간 이동은 2026-10-01부터 처분기한이 3년에서 2년으로 줄었고, 규제지역 주담대를 받았다면 6개월 안에 처분해야 합니다.',
+        src: '소득세법 시행령 제155조'
+      });
 
       const pContainer = document.getElementById('policyCardsContainer');
       if (pContainer) {
-        pContainer.innerHTML = policiesList.map(p => `
+        pContainer.innerHTML = cards.map(p => `
           <div class="p-4 rounded-xl border ${p.active ? 'border-rose-500 bg-rose-50/40 shadow-sm' : 'border-slate-200 bg-slate-50/60'} flex flex-col justify-between space-y-2">
             <div>
               <div class="flex items-center justify-between gap-1 mb-1">
                 <span class="px-2 py-0.5 rounded text-[10px] font-bold ${p.active ? 'bg-rose-600 text-white' : 'bg-slate-200 text-slate-700'}">${p.badge}</span>
               </div>
               <h3 class="font-bold text-slate-900 text-sm">${p.title}</h3>
-              <div class="text-xs font-extrabold text-rose-600 mt-1">${p.benefit}</div>
+              <div class="text-xs font-extrabold ${p.active ? 'text-rose-600' : 'text-slate-500'} mt-1">${p.benefit}</div>
               <p class="text-[11px] text-slate-600 mt-1.5 leading-relaxed">${p.desc}</p>
             </div>
+            <div class="text-[10px] text-slate-400">근거: ${p.src}</div>
           </div>
         `).join('');
       }
@@ -2851,8 +3078,8 @@
       if (safetyRegionEl) safetyRegionEl.textContent = selected.name;
 
       // Calculate monthly payment to income ratio (DSR check)
-      const neededLoan = Math.max(0, selected.sale84 - state.seed);
-      const actualLoan = Math.min(loanLim, neededLoan);
+      const neededLoan = Math.max(0, selected.sale84 - availableCash());
+      const actualLoan = Math.min(selected.maxLoanForDistrict, neededLoan);
       // Approx monthly principal+interest at ~3.8% 30yr: ~46.5 만원 per 1억 loan
       const monthlyPaymentManwon = Math.round(actualLoan * 46.5);
       const monthlyIncomeManwon = Math.round(state.income / 12);
@@ -2912,12 +3139,12 @@
         const ageMap = { elem: '초등학생 자녀', middle_high: '중·고등학생 자녀', infant: '영유아 자녀', none: '무자녀 실거주' };
         const famLabel = famMap[state.profile.family] || '우리 가족';
         const ageLabel = ageMap[state.profile.childAge] || '';
-        const cashShortfall = Math.round((selected.needLiveCash - state.seed) * 10) / 10;
+        const cashShortfall = Math.round((selected.needLiveCash - availableCash()) * 10) / 10;
         const affordableList = enriched.filter(d => d.canLive).slice(0, 3).map(d => d.name).join(' · ') || '경기 다산·일산·노원구';
 
         const line1 = `<div>1️⃣ <strong>[동네·시설 쉬운 풀이]</strong> <strong>${selected.name}</strong>은(는) <strong>${famLabel}(${ageLabel})</strong>이 원하는 주변 시설이 <strong>${selected.facMatchPct}% 갖춰진 ${selected.tier}급지</strong>예요. (${selected.liveDesc})</div>`;
         const line2 = selected.canLive
-          ? `<div>2️⃣ <strong>[자금·대출 쉬운 풀이]</strong> 84㎡ 평균 매매가 <strong>${selected.sale84.toFixed(1)}억 원</strong>에 회원님의 현금 <strong>${state.seed.toFixed(1)}억 원</strong>과 대출(최대 <strong>${loanLim.toFixed(1)}억 원</strong>)을 합치면 <strong>실거주 매수가 충분히 가능(여유 +${Math.abs(cashShortfall).toFixed(1)}억)</strong>합니다!</div>`
+          ? `<div>2️⃣ <strong>[자금·대출 쉬운 풀이]</strong> 84㎡ 평균 매매가 <strong>${selected.sale84.toFixed(1)}억 원</strong>에 회원님의 현금 <strong>${availableCash().toFixed(1)}억 원</strong>과 대출(최대 <strong>${selected.maxLoanForDistrict.toFixed(1)}억 원 · ${selected.loanProduct.name}</strong>)을 합치면 <strong>실거주 매수가 충분히 가능(여유 +${Math.abs(cashShortfall).toFixed(1)}억)</strong>합니다!</div>`
           : `<div>2️⃣ <strong>[자금·대출 쉬운 풀이]</strong> 매매가 <strong>${selected.sale84.toFixed(1)}억 원</strong>을 바로 사기엔 현금이 약 <strong>${cashShortfall.toFixed(1)}억 원 부족</strong>해요. 이곳에 <strong>전세(${selected.jeonse84.toFixed(1)}억)</strong>로 먼저 거주하거나, 지금 예산으로 무리 없이 살 수 있는 <strong>${affordableList}</strong>을 먼저 살펴보세요.</div>`;
         const line3 = `<div>3️⃣ <strong>[초보 안전 신호등]</strong> 대출 실행 시 예상 월 원리금은 약 <strong>${monthlyPaymentManwon.toLocaleString()}만 원(월 소득의 ${dsrPct}%)</strong>이며, 전세가율이 <strong>${selected.jeonseRatio}%</strong>로 낮아 역전세·깡통전세 위험이 없는 안전한 권역입니다.</div>`;
         plainEl.innerHTML = line1 + line2 + line3;
@@ -2930,14 +3157,14 @@
       const annualAppRate = appSelect ? Number(appSelect.value) / 100 : 0.025;
 
       // Rent (Jeonse) 5-year math
-      const jeonseLoanNeeded = Math.max(0, selected.jeonse84 - state.seed);
+      const jeonseLoanNeeded = Math.max(0, selected.jeonse84 - availableCash());
       const monthlyJeonseInterestMan = Math.round((jeonseLoanNeeded * 0.036 / 12) * 10000);
       const fiveYrRentOutflowEok = Math.round(((monthlyJeonseInterestMan * 60) / 10000 + 0.12) * 100) / 100; // interest + moving/brokerage twice
-      const seedDepositYieldEok = Math.round((Math.max(0, state.seed - selected.jeonse84) * 0.03 * 5) * 100) / 100;
+      const seedDepositYieldEok = Math.round((Math.max(0, availableCash() - selected.jeonse84) * 0.03 * 5) * 100) / 100;
       const rent5YrNetAssetChange = Math.round((seedDepositYieldEok - fiveYrRentOutflowEok) * 100) / 100;
 
       // Buy 5-year math
-      const interestRate = pol === 'newborn' ? 0.026 : (pol === 'first_time' || pol === 'multi_child' || pol === 'newlywed_loan') ? 0.035 : 0.041;
+      const interestRate = selected.loanProduct.rate;
       const fiveYrInterestCostEok = Math.round((actualLoan * interestRate * 5) * 100) / 100;
       const fiveYrPrincipalSavedEok = Math.round((actualLoan * 0.11) * 100) / 100; // 5yr principal paid down (~11% of 30yr loan)
       const acqAndHoldTaxEok = Math.round((selected.sale84 * 0.028) * 100) / 100;
@@ -2954,7 +3181,7 @@
             </div>
             <div class="text-base font-extrabold text-slate-900">월 주거비(이자) 약 ${monthlyJeonseInterestMan.toLocaleString()}만 원 지출</div>
             <ul class="space-y-1 text-slate-600 text-[11px] list-disc pl-4">
-              <li>필요 전세대출: <strong>약 ${jeonseLoanNeeded.toFixed(1)}억 원</strong> (내 현금 ${state.seed.toFixed(1)}억 투입)</li>
+              <li>필요 전세대출: <strong>약 ${jeonseLoanNeeded.toFixed(1)}억 원</strong> (내 현금 ${availableCash().toFixed(1)}억 투입)</li>
               <li>5년간 사라지는 주거비용(이자+이사·복비): <strong>약 ${fiveYrRentOutflowEok.toFixed(2)}억 원</strong></li>
               <li>2년·4년 차 재계약 시 전세가 인상분 추가 마련 부담 존재</li>
               <li>5년 후 순자산 변화: <strong class="text-rose-600">${rent5YrNetAssetChange >= 0 ? '+' : ''}${rent5YrNetAssetChange.toFixed(2)}억 원</strong></li>
@@ -3134,7 +3361,7 @@
         const needLive = Math.round((d.sale84 - maxL + d.sale84 * 0.025) * 10) / 10;
         const needGap = Math.round((d.sale84 - d.jeonse84 + d.sale84 * 0.025) * 10) / 10;
         const feasible = wiz.goal === 'gap_invest'
-          ? (!d.toheoje && wiz.seed >= needGap)
+          ? (!PolicyEngine.isToheoje(d, contractDate()) && wiz.seed >= needGap)
           : (wiz.seed >= needLive);
         return { ...d, wizScore: score, needLive, needGap, feasible };
       });
@@ -3543,8 +3770,9 @@
     function renderAll() {
       const enriched = getEnrichedDistricts();
       const loanLimit = calcLoanLimit(state.income);
-      const maxLivePrice = Math.round((state.seed * 0.97 + loanLimit) * 10) / 10;
-      const netGap = Math.round(state.seed * 0.95 * 10) / 10;
+      // 서울 전역이 규제지역이므로 규제지역 기준 최대 매수가
+      const maxLivePrice = PolicyEngine.maxPrice(availableCash(), { regulated: true, f: currentFacts(), date: state.closingDate, areaSize: state.areaSize });
+      const netGap = Math.round(availableCash() * 0.95 * 10) / 10;
 
       const w = state.weights;
       const totalW = (w.job + w.edu + w.prod + w.infra + w.future) || 100;
@@ -3580,15 +3808,16 @@
       const canLiveCount = enriched.filter(d => d.canLive).length;
       const canGapCount = enriched.filter(d => d.canGap).length;
       document.getElementById('bannerMaxLivePrice').textContent = `약 ${maxLivePrice.toFixed(1)}억 원`;
-      document.getElementById('bannerMaxLiveSub').textContent = `현금 ${state.seed.toFixed(1)}억 + 주담대 최대 ${loanLimit.toFixed(1)}억`;
+      const parentNet = currentParentPlan().net;
+      document.getElementById('bannerMaxLiveSub').textContent = `현금 ${availableCash().toFixed(1)}억${parentNet > 0 ? `(부모 지원 ${parentNet.toFixed(1)}억 포함)` : ''} + 대출 · 취득세 반영`;
       document.getElementById('bannerAccessibleCount').textContent = `실거주 ${canLiveCount}곳 / 갭투자 ${canGapCount}곳`;
 
       const adviceEl = document.getElementById('simStrategyAdvice');
-      if (state.seed < 4.5) {
+      if (availableCash() < 4.5) {
         adviceEl.textContent = '서울 5급지(노도강·금관구) 역세권 또는 경기 다산·별내·일산·구리 실거주/갭투자로 첫 징검다리를 놓는 1단계 진입 전략이 유효합니다.';
-      } else if (state.seed < 8.5) {
+      } else if (availableCash() < 8.5) {
         adviceEl.textContent = '서울 4급지(서대문·동대문·강서) 구축·준신축과 경기 핵심지(안양 평촌·용인 수지·광명·하남·광교) 신축·학군지를 1:1 비교해 선택할 수 있는 핵심 구간입니다.';
-      } else if (state.seed < 14) {
+      } else if (availableCash() < 14) {
         adviceEl.textContent = '서울 2~3급지(마포·성동·광진·양천·동작·강동) 및 경기 최상급지(분당·판교·과천) 진입이 모두 사정권에 들어오는 상급지 갈아타기 골든존입니다.';
       } else {
         adviceEl.textContent = '서울 1급지(강남·서초·송파·용산) 및 과천·판교 대장주 진입이 가능한 구간입니다. 토지거래허가구역 실거주 요건을 활용한 똘똘한 한 채 전략이 유리합니다.';
@@ -3634,7 +3863,7 @@
       document.getElementById('detailNeedLive').textContent = `약 ${selected.needLiveCash.toFixed(1)}억 원`;
       document.getElementById('detailNeedGap').textContent = `약 ${selected.needGapCash.toFixed(1)}억 원`;
 
-      const liveDiff = Math.round((state.seed - selected.needLiveCash) * 10) / 10;
+      const liveDiff = Math.round((availableCash() - selected.needLiveCash) * 10) / 10;
       const statusLiveEl = document.getElementById('detailStatusLive');
       if (selected.canLive) {
         statusLiveEl.className = 'text-[11px] font-semibold text-emerald-600';
@@ -3644,7 +3873,7 @@
         statusLiveEl.textContent = `자금 부족 (${liveDiff.toFixed(1)}억)`;
       }
 
-      const gapDiff = Math.round((state.seed - selected.needGapCash) * 10) / 10;
+      const gapDiff = Math.round((availableCash() - selected.needGapCash) * 10) / 10;
       const statusGapEl = document.getElementById('detailStatusGap');
       if (selected.toheoje) {
         statusGapEl.className = 'text-[11px] font-semibold text-amber-600';
@@ -3779,6 +4008,7 @@
       renderMapAndTxView(enriched, selected);
       renderWizardDiagnostic();
       renderPolicyAndSafetyView(enriched, selected);
+      renderScenarioSim(enriched, selected);
       renderBeginnerBest3Hero(enriched);
       renderDilemmaSolvers(enriched, selected);
     }
@@ -3809,7 +4039,7 @@
         // Determine practical winner for the user's current cash budget
         let verdictHtml = '';
         if (selected.canLive && !rival.canLive) {
-          verdictHtml = `🏆 <strong>최종 판정 승자: [${selected.name}]</strong> — [${rival.name}]은 현재 보유 현금에서 약 ${(rival.needLiveCash - state.seed).toFixed(1)}억 원이 부족하지만, <strong>[${selected.name}]은 무리한 영끌 없이 지금 바로 실거주 매수가 가능</strong>합니다!`;
+          verdictHtml = `🏆 <strong>최종 판정 승자: [${selected.name}]</strong> — [${rival.name}]은 현재 보유 현금에서 약 ${(rival.needLiveCash - availableCash()).toFixed(1)}억 원이 부족하지만, <strong>[${selected.name}]은 무리한 영끌 없이 지금 바로 실거주 매수가 가능</strong>합니다!`;
         } else if (!selected.canLive && rival.canLive) {
           verdictHtml = `🏆 <strong>최종 판정 승자: [${rival.name}]</strong> — [${selected.name}]은 자금이 부족한 반면, <strong>[${rival.name}]은 현재 예산으로 안정적인 실거주 진입이 가능</strong>합니다!`;
         } else if (selScoreWin) {
@@ -3848,7 +4078,7 @@
       const moveAndLegalEok = 0.04; // 이사+법무사 약 400만 원
       const realTotalCashNeededEok = Math.round((selected.needLiveCash + remCost + moveAndLegalEok) * 100) / 100;
 
-      const neededLoan = Math.max(0, selected.sale84 - state.seed);
+      const neededLoan = Math.max(0, selected.sale84 - availableCash());
       const actualLoan = Math.min(selected.maxLoanForDistrict, neededLoan);
       const monthlyMortgageMan = Math.round(actualLoan * 46.5);
       const monthlyMaintMan = state.areaSize === 59 ? 24 : state.areaSize === 114 ? 42 : 32; // 아파트 관리비
@@ -3883,9 +4113,9 @@
 
       const receiptAlert = document.getElementById('hiddenCostAlertText');
       if (receiptAlert) {
-        const realDiff = Math.round((state.seed - realTotalCashNeededEok) * 100) / 100;
+        const realDiff = Math.round((availableCash() - realTotalCashNeededEok) * 100) / 100;
         receiptAlert.innerHTML = realDiff >= 0
-          ? `🟢 <strong>안심 판정:</strong> 수리비와 세금·이사비를 모두 합쳐도 보유 현금(${state.seed.toFixed(1)}억) 안에서 <strong>+${realDiff.toFixed(2)}억 원 여유</strong>가 있습니다.`
+          ? `🟢 <strong>안심 판정:</strong> 수리비와 세금·이사비를 모두 합쳐도 보유 현금(${availableCash().toFixed(1)}억) 안에서 <strong>+${realDiff.toFixed(2)}억 원 여유</strong>가 있습니다.`
           : `⚠️ <strong>현금 부족 주의:</strong> 집값만 보면 가능해 보여도 수리비·세금을 합치면 잔금날 현금이 <strong>약 ${Math.abs(realDiff).toFixed(2)}억 원 모자랍니다.</strong> 수리된 매물을 고르거나 예산을 낮추세요!`;
       }
 
@@ -3910,7 +4140,7 @@
             <span class="px-2 py-0.5 rounded bg-slate-800 text-white font-bold text-[10px]">Step 2 · 중개소 첫 방문·전화 멘트</span>
             <div class="font-bold text-slate-900 text-sm">“급하게 사는 티 내지 않는 질문법”</div>
             <p class="text-[11px] text-slate-700 bg-white p-2.5 rounded border border-slate-200 leading-relaxed">
-              💬 <em>“소장님, 실거주(현금 ${state.seed.toFixed(1)}억 준비 완료)로 보고 있는데요. 인근 단지랑 비교 중인데, 최근 실거래가가 ${selected.sale84.toFixed(1)}억 선이더라고요. 혹시 집주인분 사정상 <strong>${targetNegoPrice}억~${urgentBuyPrice}억 선으로 조율 가능한 급매</strong>가 나오면 바로 가계약금 넣을 수 있으니 연락 부탁드립니다.”</em>
+              💬 <em>“소장님, 실거주(현금 ${availableCash().toFixed(1)}억 준비 완료)로 보고 있는데요. 인근 단지랑 비교 중인데, 최근 실거래가가 ${selected.sale84.toFixed(1)}억 선이더라고요. 혹시 집주인분 사정상 <strong>${targetNegoPrice}억~${urgentBuyPrice}억 선으로 조율 가능한 급매</strong>가 나오면 바로 가계약금 넣을 수 있으니 연락 부탁드립니다.”</em>
             </p>
           </div>
           <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
@@ -3932,7 +4162,7 @@
       const famMap = { family4: '4인 이상 가족', family3: '3인 가족', newlywed: '신혼·예비부부', single: '1~2인 직장인', senior: '은퇴·시니어' };
       const famName = famMap[state.profile.family] || '우리 가족';
       if (titleEl) {
-        titleEl.textContent = `🏆 ${famName} · 현금 ${state.seed.toFixed(1)}억(전용 ${state.areaSize}㎡)으로 지금 살 수 있는 추천 동네 BEST 3`;
+        titleEl.textContent = `🏆 ${famName} · 현금 ${availableCash().toFixed(1)}억(전용 ${state.areaSize}㎡)으로 지금 살 수 있는 추천 동네 BEST 3`;
       }
 
       // Filter affordable districts for living (or fallback to lowest cash needed if none)
@@ -3953,8 +4183,8 @@
         const leadApts = getLeadComplexNames(d.hotspots);
         const mainApt = leadApts[0] || `${cleanName} 대표단지`;
         const qApt = encodeURIComponent(`${cleanName} ${mainApt}`);
-        const cashDiff = Math.round((state.seed - d.needLiveCash) * 10) / 10;
-        const neededLoan = Math.max(0, d.sale84 - state.seed);
+        const cashDiff = Math.round((availableCash() - d.needLiveCash) * 10) / 10;
+        const neededLoan = Math.max(0, d.sale84 - availableCash());
         const monthlyPayMan = Math.round(Math.min(d.maxLoanForDistrict, neededLoan) * 46.5);
 
         const statusBadge = !isFallback
@@ -4285,8 +4515,18 @@
         .catch(() => {});
     }
 
+    // policy_collector.py가 매일 공식 기관에서 받아오는 정책 수치 (금리·허가구역 등)
+    function loadLivePolicy() {
+      fetch('policy_live.json', { cache: 'no-cache' })
+        .then(r => r.ok ? r.json() : null)
+        .then(live => { if (live) { PolicyEngine.applyLive(live); renderAll(); } })
+        .catch(() => {});
+    }
+
     window.addEventListener('DOMContentLoaded', () => {
       loadLivePrices();
+      loadLivePolicy();
+      initScenarioSim();
       const compareSelect = document.getElementById('compareSelect');
       compareSelect.innerHTML = DISTRICTS.map(d =>
         `<option value="${d.id}" ${d.id === state.compareId ? 'selected' : ''}>${d.name} (${d.tier}급지)</option>`
@@ -4387,7 +4627,7 @@
           const top3 = enriched.filter(d => d.canLive).slice(0, 3).map((d, i) => `${i + 1}위 ${d.name}(${d.sale84.toFixed(1)}억, 점수 ${d.customScore.toFixed(1)}점)`).join(', ');
           const summaryText = [
             `[수도권 입지 랩 Pro — 내 가족 맞춤 입지·자금 진단 리포트]`,
-            `• 분석 기준: 전용 ${state.areaSize}㎡ / 보유 현금 ${state.seed.toFixed(1)}억 / 연소득 ${(state.income/10000).toFixed(2)}억 / 적용 정책: ${state.profile.policy}`,
+            `• 분석 기준: 전용 ${state.areaSize}㎡ / 보유 현금 ${availableCash().toFixed(1)}억 / 연소득 ${(state.income/10000).toFixed(2)}억 / 적용 정책: ${state.profile.policy}`,
             `• 관심 지역: ${sel.name} (${sel.tier}급지, 종합 ${sel.customScore.toFixed(1)}점, 선호시설 ${sel.facMatchPct}% 일치)`,
             `• 시세 및 진입금: 평균 매매 ${sel.sale84.toFixed(1)}억 (실속 ${sel.bandLow.toFixed(1)}억 ~ 대장 ${sel.bandHigh.toFixed(1)}억) / 실거주 필요현금 약 ${sel.needLiveCash.toFixed(1)}억`,
             `• 내 예산 실거주 추천 TOP 3: ${top3 || '전용 59㎡ 전환 또는 경기 핵심지 추천'}`,
@@ -4428,6 +4668,7 @@
       if (gPolSel) {
         gPolSel.addEventListener('change', (e) => {
           state.profile.policy = e.target.value;
+          applyPolicyPreset(e.target.value);
           document.getElementById('profilePolicySelect').value = e.target.value;
           applyProfileAutoWeights();
           renderAll();
@@ -4479,6 +4720,7 @@
       });
       document.getElementById('profilePolicySelect').addEventListener('change', (e) => {
         state.profile.policy = e.target.value;
+        applyPolicyPreset(e.target.value);
         renderAll();
       });
 
@@ -5094,7 +5336,7 @@
           const text = [
             `[${sel.name} 전용 ${state.areaSize}㎡ 공인중개소 방문·네고 실전 대본]`,
             `1. 적정 매수 목표가: 최근 실거래 평균 ${sel.sale84.toFixed(2)}억 → 네고 목표가 ${targetNego}억 원 이하`,
-            `2. 첫 문의 멘트: "현금 ${state.seed.toFixed(1)}억 준비된 실수요자입니다. 인근 단지와 비교 중인데 ${targetNego}억 선으로 가격 조율 가능한 매물이 있으면 오늘 바로 가계약 가능합니다."`,
+            `2. 첫 문의 멘트: "현금 ${availableCash().toFixed(1)}억 준비된 실수요자입니다. 인근 단지와 비교 중인데 ${targetNego}억 선으로 가격 조율 가능한 매물이 있으면 오늘 바로 가계약 가능합니다."`,
             `3. 가계약 직전 멘트: "매도인분 잔금 일정에 맞춰드리는 대신 ${targetNego}억으로 조정해 주시고, 근저당 말소 및 대출 미승인 시 계약금 반환 특약에 동의해 주시면 즉시 입금하겠습니다."`
           ].join('\n');
           const ta = document.createElement('textarea');
