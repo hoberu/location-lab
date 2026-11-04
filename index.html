@@ -4,6 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>수도권 입지 랩 — 내 집 마련 자금·입지 계산기</title>
+  <meta name="description" content="현금·소득·가족 상황·부모님 지원만 넣으면 서울·경기에서 살 수 있는 최대 금액과 동네, 받을 수 있는 대출·세금 혜택을 현재 정책 기준으로 계산합니다." />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="ko_KR" />
+  <meta property="og:site_name" content="수도권 입지 랩" />
+  <meta property="og:title" content="내 돈으로 서울·경기 어디까지 살 수 있을까?" />
+  <meta property="og:description" content="현금·소득·가족 상황·부모님 지원 4가지로 최대 매수가, 추천 동네, 받을 수 있는 대출·세금 혜택을 한 장으로." />
+  <meta property="og:url" content="https://hoberu.github.io/location-lab/" />
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -45,7 +52,7 @@
 <body class="min-h-screen flex flex-col">
 
   <!-- Top Header -->
-  <header class="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-30 shadow-sm">
+  <header class="bg-slate-900 text-white border-b border-slate-800 sm:sticky top-0 z-30 shadow-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
       <div class="flex items-center gap-3">
         <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center font-bold text-lg shadow-inner">
@@ -53,9 +60,9 @@
         </div>
         <div>
           <div class="flex items-center gap-2 flex-wrap">
-            <h1 class="text-base sm:text-lg font-bold tracking-tight">수도권 입지 랩 (Location Lab Pro)</h1>
-            <span class="text-[11px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 font-medium">공공데이터 기반</span>
-            <span class="text-[11px] px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-400/30 font-medium">가족·시설 맞춤 & 초보 안전가이드</span>
+            <h1 class="text-base sm:text-lg font-bold tracking-tight">수도권 입지 랩</h1>
+            <span class="hidden sm:inline text-[11px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 font-medium">공공데이터 기반</span>
+            <span class="hidden sm:inline text-[11px] px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-400/30 font-medium">가족·시설 맞춤 & 초보 안전가이드</span>
           </div>
           <p class="text-xs text-slate-400 hidden sm:block">가족 구성·아이 나이·선호 시설 선택만으로 끝나는 서울·경기 입지 순위 & 정책자금·갈아타기 시뮬레이터</p>
         </div>
@@ -89,11 +96,14 @@
         </div>
 
         <!-- Navigation Tabs -->
-        <nav class="flex flex-wrap items-center gap-1 bg-slate-800 p-1 rounded-lg text-xs font-medium">
+        <nav class="flex flex-nowrap sm:flex-wrap items-center gap-1 bg-slate-800 p-1 rounded-lg text-xs font-medium w-full sm:w-auto overflow-x-auto whitespace-nowrap">
+          <button id="tabBtnQuick" class="px-2 py-1.5 rounded-md bg-amber-400 text-slate-950 font-bold transition">
+            🏠 한눈에 결론
+          </button>
           <button id="tabBtnLanding" class="px-2 py-1.5 rounded-md text-indigo-300 hover:text-white transition">
             🚀 서비스 소개 & 튜토리얼
           </button>
-          <button id="tabBtnRanking" class="px-2 py-1.5 rounded-md bg-blue-600 text-white transition">
+          <button id="tabBtnRanking" class="px-2 py-1.5 rounded-md text-slate-300 hover:text-white transition">
             입지 순위 & 자산 매칭
           </button>
           <button id="tabBtnPolicy" class="px-2 py-1.5 rounded-md text-rose-300 hover:text-white transition">
@@ -120,7 +130,7 @@
   </header>
 
   <!-- Market Summary & Data Reliability Banner (Interactive on ALL Pages) -->
-  <section class="bg-white border-b border-slate-200 shadow-xs">
+  <section id="topSummarySection" class="hidden bg-white border-b border-slate-200 shadow-xs">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 space-y-2.5">
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <!-- Card 1: Click to inspect Score Evidence & Daily Update QA Guardrails -->
@@ -376,8 +386,60 @@
   <!-- Main Content Container -->
   <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-5 space-y-4">
 
+    <!-- 한눈에 결론: 입력 4개 → 최대 매수가·추천 동네·혜택·주의사항 -->
+    <div id="viewQuick" class="space-y-4">
+      <section class="bg-white rounded-xl border border-indigo-200 p-4 sm:p-5 shadow-sm space-y-3">
+        <div>
+          <h2 class="text-lg sm:text-2xl font-extrabold text-slate-900">내 돈으로 어디까지 살 수 있을까?</h2>
+          <p class="text-xs sm:text-sm text-slate-500 mt-0.5">네 가지만 넣으면 지금 정책·대출 규칙으로 계산합니다. 입력값은 이 기기에만 저장됩니다.</p>
+        </div>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 text-sm">
+          <label class="space-y-1"><span class="block text-xs font-semibold text-slate-600">지금 가진 현금</span>
+            <span class="flex items-center gap-1"><input id="qCash" type="number" inputmode="decimal" min="0" max="100" step="0.1" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 font-bold" /><span class="text-slate-500 shrink-0">억</span></span></label>
+          <label class="space-y-1"><span class="block text-xs font-semibold text-slate-600">부부 합산 연소득(세전)</span>
+            <span class="flex items-center gap-1"><input id="qIncome" type="number" inputmode="numeric" min="0" max="200000" step="100" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 font-bold" /><span class="text-slate-500 shrink-0">만원</span></span></label>
+          <label class="space-y-1"><span class="block text-xs font-semibold text-slate-600">가족 상황</span>
+            <select id="qFamily" class="w-full rounded-lg border border-slate-300 px-2 py-2 font-bold bg-white"></select></label>
+          <label class="space-y-1"><span class="block text-xs font-semibold text-slate-600">부모님 지원 (양가 합산)</span>
+            <span class="flex items-center gap-1"><input id="qParent" type="number" inputmode="decimal" min="0" max="50" step="0.1" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 font-bold" /><span class="text-slate-500 shrink-0">억</span></span></label>
+        </div>
+        <p id="qLinkNotice" class="hidden text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-lg px-3 py-2">공유받은 링크의 조건으로 계산했어요. 내 조건으로 바꿔 보세요.</p>
+      </section>
+
+      <section class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div class="p-4 sm:p-5 rounded-xl bg-slate-900 text-white space-y-2">
+          <div class="text-xs text-slate-300">최대 매수가 <span class="text-slate-400">(서울 전역 등 규제지역 기준)</span></div>
+          <div id="qMaxPrice" class="text-4xl font-extrabold text-amber-300">—</div>
+          <div id="qMaxDetail" class="text-xs text-slate-300 leading-relaxed"></div>
+        </div>
+        <div class="lg:col-span-2 space-y-2">
+          <div id="qTopTitle" class="font-bold text-slate-900 text-sm">지금 살 수 있는 추천 동네</div>
+          <div id="qTopCards" class="grid grid-cols-1 md:grid-cols-3 gap-3"></div>
+        </div>
+      </section>
+
+      <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="p-4 rounded-xl bg-white border border-emerald-200 space-y-2">
+          <div class="font-bold text-slate-900 text-sm">🎁 받을 수 있는 혜택</div>
+          <ul id="qBenefits" class="space-y-1.5 text-xs text-slate-700"></ul>
+        </div>
+        <div class="p-4 rounded-xl bg-white border border-rose-200 space-y-2">
+          <div class="font-bold text-slate-900 text-sm">⚠️ 꼭 알아둘 점</div>
+          <ul id="qWarnings" class="space-y-1.5 text-xs text-slate-700"></ul>
+        </div>
+      </section>
+
+      <section class="flex flex-wrap items-center gap-2">
+        <button type="button" id="qShareBtn" class="px-3.5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold">🔗 결과 공유 링크 복사</button>
+        <button type="button" id="qMorePolicyBtn" class="px-3.5 py-2 rounded-lg bg-white border border-slate-300 hover:bg-slate-50 text-slate-800 text-xs font-bold">부모님 지원·정책 자세히 →</button>
+        <button type="button" id="qMoreRankingBtn" class="px-3.5 py-2 rounded-lg bg-white border border-slate-300 hover:bg-slate-50 text-slate-800 text-xs font-bold">동네 순위 전체 보기 →</button>
+        <span id="qShareToast" class="hidden text-xs font-semibold text-emerald-700"></span>
+      </section>
+      <p id="qFootnote" class="text-[11px] text-slate-400 leading-relaxed"></p>
+    </div>
+
     <!-- NEW Phase 11: Beginner 4-Step Guided Progress Bar (Prevents Getting Lost) -->
-    <div id="beginnerStepGuideBar" class="bg-white rounded-xl border-2 border-indigo-100 p-3 shadow-xs flex flex-wrap items-center justify-between gap-2 text-xs">
+    <div id="beginnerStepGuideBar" class="hidden bg-white rounded-xl border-2 border-indigo-100 p-3 shadow-xs flex flex-wrap items-center justify-between gap-2 text-xs">
       <div class="flex items-center gap-2">
         <span class="px-2.5 py-1 rounded-lg bg-indigo-600 text-white font-extrabold text-[11px]">🧭 초보자 4단계 따라하기</span>
         <span class="text-slate-600 hidden md:inline">부동산을 잘 몰라도 아래 <strong>1단계 → 4단계</strong> 순서대로만 눌러보시면 내 집 마련 계획이 완성됩니다.</span>
@@ -560,7 +622,7 @@
     </div>
 
     <!-- VIEW 1: Ranking & Simulator -->
-    <div id="viewRanking" class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+    <div id="viewRanking" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-5">
 
       <!-- Left Sidebar: Controls (4 cols on desktop) -->
       <aside class="lg:col-span-4 space-y-4">
@@ -2556,7 +2618,8 @@
       filter: 'all',
       search: '',
       sort: 'customScore',
-      activeTab: 'ranking',
+      activeTab: 'quick',
+      quickFamily: 'kids2',
       bookLens: '4인 가족·초등 학군 맞춤',
       credits: 12,
       maxCredits: 15,
@@ -2821,6 +2884,210 @@
       });
 
       return list;
+    }
+
+    // 외부 데이터(실거래 API 단지명 등)를 HTML에 넣을 때
+    const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+    // ===== 한눈에 결론 탭 =====
+    const FAMILY_PRESETS = {
+      single:   { label: '1인 가구 (미혼)',            facts: { married: 'single', children: 0, newborn2y: false },  family: 'single',   childAge: 'none',   policy: 'first_time' },
+      planned:  { label: '결혼 예정 (2년 내 혼인신고)', facts: { married: 'planned', children: 0, newborn2y: false }, family: 'newlywed', childAge: 'none',   policy: 'newlywed_loan' },
+      newlywed: { label: '신혼부부 (혼인 7년 이내)',    facts: { married: 'within7', children: 0, newborn2y: false }, family: 'newlywed', childAge: 'none',   policy: 'newlywed_loan' },
+      baby:     { label: '신혼 + 2년 내 출산(예정)',   facts: { married: 'within7', children: 1, newborn2y: true },  family: 'family3',  childAge: 'infant', policy: 'newborn' },
+      kid1:     { label: '자녀 1명',                   facts: { married: 'over7', children: 1, newborn2y: false },   family: 'family3',  childAge: 'elem',   policy: 'first_time' },
+      kids2:    { label: '자녀 2명 이상',              facts: { married: 'over7', children: 2, newborn2y: false },   family: 'family4',  childAge: 'elem',   policy: 'multi_child' },
+    };
+
+    function applyFamilyPreset(key) {
+      const p = FAMILY_PRESETS[key];
+      if (!p) return;
+      state.quickFamily = key;
+      Object.assign(state.facts, p.facts);
+      Object.assign(state.profile, { family: p.family, childAge: p.childAge, policy: p.policy });
+      state.parent.split = p.facts.married !== 'single';                         // 양가에서 각자 자기 자녀에게
+      state.parent.marriageBirth = p.facts.married === 'planned' || p.facts.newborn2y; // 혼인·출산 공제 기간
+      applyProfileAutoWeights();
+      syncScenarioInputs();
+    }
+
+    function initQuick(restored) {
+      const fam = document.getElementById('qFamily');
+      if (!fam) return;
+      fam.innerHTML = Object.entries(FAMILY_PRESETS).map(([k, v]) => `<option value="${k}">${v.label}</option>`).join('');
+      if (!restored) applyFamilyPreset(state.quickFamily);
+      if (restored === 'link') document.getElementById('qLinkNotice').classList.remove('hidden');
+      const num = (id, fn) => document.getElementById(id).addEventListener('input', e => {
+        const v = Number(e.target.value);
+        if (e.target.value === '' || !isFinite(v) || v < 0) return;
+        fn(v);
+        syncScenarioInputs();
+        renderAll();
+      });
+      num('qCash', v => { state.seed = Math.min(100, v); });
+      num('qIncome', v => { state.income = Math.min(200000, v); });
+      num('qParent', v => { state.parent.amount = Math.min(50, v); });
+      fam.addEventListener('change', e => { applyFamilyPreset(e.target.value); renderAll(); });
+      document.getElementById('qMorePolicyBtn').addEventListener('click', () => { switchTab('policy'); window.scrollTo({ top: 0 }); });
+      document.getElementById('qMoreRankingBtn').addEventListener('click', () => { switchTab('ranking'); window.scrollTo({ top: 0 }); });
+      document.getElementById('qTopCards').addEventListener('click', e => {
+        const b = e.target.closest('[data-qregion]');
+        if (!b) return;
+        state.selectedId = b.dataset.qregion;
+        switchTab('ranking');
+        renderAll();
+        window.scrollTo({ top: 0 });
+      });
+      document.getElementById('qShareBtn').addEventListener('click', () => {
+        const link = shareLink();
+        const toast = document.getElementById('qShareToast');
+        const done = ok => {
+          toast.textContent = ok
+            ? '링크를 복사했어요. 입력한 금액이 링크에 담기니 믿을 수 있는 사람에게만 보내세요.'
+            : `복사가 안 되면 이 주소를 직접 복사하세요: ${link}`;
+          toast.classList.remove('hidden');
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(link).then(() => done(true), () => done(false));
+        else done(false);
+      });
+    }
+
+    function renderQuick(enriched) {
+      if (!document.getElementById('viewQuick')) return;
+      const fmtMan = eok => (Math.round(eok * 10000) > 0 ? `${Math.round(eok * 10000).toLocaleString()}만 원` : '0원');
+      const setVal = (id, v) => { const el = document.getElementById(id); if (el && document.activeElement !== el) el.value = v; };
+      setVal('qCash', state.seed);
+      setVal('qIncome', state.income);
+      setVal('qParent', state.parent.amount);
+      setVal('qFamily', state.quickFamily);
+
+      const date = state.closingDate;
+      const facts = currentFacts();
+      const sc = runScenario(enriched, '지금', {}, {});
+      const incomeM = Math.round(state.income / 12);
+      const ratio = incomeM ? Math.round(sc.monthlyMan / incomeM * 100) : 0;
+      const ratioCls = ratio > 40 ? 'text-rose-300' : ratio > 30 ? 'text-amber-300' : 'text-emerald-300';
+      document.getElementById('qMaxPrice').textContent = sc.maxP > 0 ? `${sc.maxP.toFixed(1)}억` : '—';
+      document.getElementById('qMaxDetail').innerHTML =
+        `쓸 수 있는 현금 <strong class="text-white">${sc.cash.toFixed(1)}억</strong>${sc.plan.net > 0 ? ` (부모님 지원 세후 ${sc.plan.net.toFixed(2)}억 포함)` : ''}` +
+        ` + 대출 <strong class="text-white">${sc.loan.amount.toFixed(1)}억</strong> (${sc.loan.name})에서 취득세·중개보수를 뺀 금액입니다.` +
+        `<br>이 가격으로 사면 월 상환 약 <strong class="text-white">${sc.monthlyMan.toLocaleString()}만 원</strong> · 월소득의 <strong class="${ratioCls}">${ratio}%</strong>${ratio > 30 ? ' (30% 이내가 안전)' : ''}`;
+
+      // 추천 동네 3곳 (살 수 있는 곳 중 맞춤 점수 순, 없으면 가장 가까운 곳)
+      const fallback = sc.affordable.length === 0;
+      const list = fallback ? [...enriched].sort((a, b) => a.needLiveCash - b.needLiveCash).slice(0, 3) : sc.affordable.slice(0, 3);
+      document.getElementById('qTopTitle').textContent = fallback
+        ? '아직 살 수 있는 동네가 없어요 — 필요한 현금이 가장 적은 곳'
+        : `지금 살 수 있는 추천 동네 (전체 ${sc.affordable.length}곳 중 맞춤 점수 순)`;
+      document.getElementById('qTopCards').innerHTML = list.map((d, i) => {
+        const short = Math.max(0, Math.round((d.needLiveCash - sc.cash) * 10) / 10);
+        const pay = Math.round(PolicyEngine.monthlyPayment(d.loanProduct.amount, d.loanProduct.rate, d.loanProduct.years) * 10000);
+        const cx = ((d.live && d.live.complexes) || [])
+          .filter(c => PolicyEngine.cashNeeded({ price: c.median, regulated: d.regulated, f: facts, date, areaSize: 84 }).need <= sc.cash)
+          .sort((a, b) => b.n - a.n);
+        const cxHtml = d.live && d.live.complexes && d.live.complexes.length
+          ? (cx.length
+            ? `<div class="font-semibold text-slate-700">살 수 있는 단지 ${cx.length}곳 (84㎡ 실거래 중앙값)</div>` +
+              cx.slice(0, 3).map(c => `<div>· ${esc(c.apt)} <span class="text-slate-400">${esc(c.dong)}</span> ${c.median.toFixed(1)}억 <span class="text-slate-400">(${c.n}건)</span></div>`).join('')
+            : '<div class="text-slate-500">거래된 단지 중 지금 예산으로 살 수 있는 84㎡ 단지는 없어요</div>')
+          : d.live && d.live.complexes
+            ? '<div class="text-slate-400">최근 6개월 84㎡ 매매 실거래가 없어요</div>'
+            : '<div class="text-slate-400">단지별 시세는 실거래 데이터 연결 후 표시돼요</div>';
+        return `
+          <div class="p-3 rounded-xl border ${fallback ? 'border-slate-200 bg-slate-50' : 'border-emerald-300 bg-emerald-50/40'} flex flex-col gap-1.5 text-xs">
+            <div class="flex items-center justify-between gap-1"><strong class="text-sm text-slate-900">${i + 1}. ${d.name.replace(' (경기)', '')}</strong>${getTierBadgeHtml(d.tier, d.scope)}</div>
+            <div class="text-slate-600">${state.areaSize}㎡ 시세 <strong>${d.sale84.toFixed(1)}억</strong> · 필요 현금 <strong>${d.needLiveCash.toFixed(1)}억</strong>${short > 0 ? ` · <span class="text-rose-600 font-semibold">${short.toFixed(1)}억 부족</span>` : ''}</div>
+            <div class="text-slate-600">대출 ${d.loanProduct.amount.toFixed(1)}억 · 월 약 ${pay.toLocaleString()}만 원${d.toheoje ? ' · <span class="text-amber-700">허가구역(실거주)</span>' : ''}</div>
+            <div class="text-[11px] space-y-0.5 pt-1 border-t border-slate-200">${cxHtml}</div>
+            <button type="button" data-qregion="${d.id}" class="mt-auto self-start text-indigo-700 font-bold hover:underline">이 동네 자세히 →</button>
+          </div>`;
+      }).join('');
+
+      // 받을 수 있는 혜택
+      const top1 = list[0];
+      const benefits = [];
+      const opts = PolicyEngine.loanOptions({ price: top1.sale84, regulated: top1.regulated, f: facts, date, areaSize: state.areaSize });
+      opts.filter(o => o.eligible && o.id !== 'bank').forEach(o => benefits.push(`<strong>${o.name}</strong> 대상 — 최대 ${o.amount.toFixed(1)}억 · ${o.rateText}`));
+      if (!benefits.length) benefits.push(`정책대출(디딤돌·신생아 특례·보금자리론)은 ${top1.name.replace(' (경기)', '')} 가격·소득 기준으로 <strong>해당 없음</strong> — 시중은행 대출(연 ${(sc.loan.rate * 100).toFixed(2)}%)로 계산했어요`);
+      const relief = top1.acqTax.relief;
+      if (relief) benefits.push(`<strong>${relief.name}</strong> ${fmtMan(relief.amount)}`);
+      benefits.push(`부모님께 <strong>세금 없이 최대 ${sc.plan.taxFreeMax.toFixed(2)}억</strong>까지 지원받을 수 있어요 (증여공제${state.parent.marriageBirth ? '·혼인출산공제' : ''} + 무이자 차용)`);
+      if (state.parent.amount > 0 && sc.plan.taxIfAllGift > sc.plan.tax) benefits.push(`지원금을 증여+차용으로 나누면 증여세 <strong>${fmtMan(sc.plan.taxIfAllGift - sc.plan.tax)} 절약</strong> (예상 세금 ${fmtMan(sc.plan.tax)})`);
+      document.getElementById('qBenefits').innerHTML = benefits.map(b => `<li>✓ ${b}</li>`).join('');
+
+      // 꼭 알아둘 점 3가지
+      const warns = PolicyEngine.tipsFor(state.facts, state.parent, {
+        plan: sc.plan, region: top1, loan: top1.loanProduct, monthlyMan: sc.monthlyMan, rateUpMan: sc.rateUpMan, incomeMonthlyMan: incomeM, date
+      }).filter(t => t.kind === 'warn').slice(0, 3);
+      document.getElementById('qWarnings').innerHTML = warns.map(t => `<li><strong>${t.title}</strong> — ${t.body}</li>`).join('') || '<li>현재 조건에서 특별한 주의사항이 없어요.</li>';
+
+      const bankSrc = PolicyEngine.dataSources(new Date().toLocaleDateString('sv'))[0];
+      document.getElementById('qFootnote').textContent =
+        `정책 기준일 ${date} · 은행 주담대 ${bankSrc.value}(${bankSrc.kind === 'auto' ? `${bankSrc.source.split(' · ')[0]} ${bankSrc.asOf}` : '가정값'}) · 생애최초 여부·주택 보유 등 세부 조건은 '부모님 지원·정책 자세히'에서 바꿀 수 있어요. ` +
+        '입지 점수는 자체 평가이며, 실제 대출 한도와 세금은 은행·세무사 확인이 필요합니다.';
+    }
+
+    // ===== 입력 저장(이 기기) · 공유 링크 =====
+    const SAVE_KEY = 'locationlab:v1';
+    function savedSnapshot() {
+      return {
+        seed: state.seed, income: state.income, areaSize: state.areaSize, closingDate: state.closingDate,
+        selectedId: state.selectedId, quickFamily: state.quickFamily, facts: state.facts, parent: state.parent,
+        profile: { family: state.profile.family, childAge: state.profile.childAge, policy: state.profile.policy, facilities: state.profile.facilities }
+      };
+    }
+    // 저장값·공유 링크는 외부 입력이므로 형식이 맞는 값만 받아들인다
+    function sanitizeSaved(o) {
+      if (!o || typeof o !== 'object') return null;
+      const n = (v, min, max) => (typeof v === 'number' && isFinite(v) && v >= min && v <= max ? v : undefined);
+      const one = (v, list) => (list.includes(v) ? v : undefined);
+      const bool = v => (typeof v === 'boolean' ? v : undefined);
+      const f = o.facts || {}, p = o.parent || {}, pr = o.profile || {};
+      const out = {
+        seed: n(o.seed, 0, 100), income: n(o.income, 0, 200000), areaSize: one(o.areaSize, [59, 84, 114]),
+        closingDate: typeof o.closingDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(o.closingDate) && o.closingDate >= new Date().toLocaleDateString('sv') ? o.closingDate : undefined,
+        selectedId: DISTRICTS.some(d => d.id === o.selectedId) ? o.selectedId : undefined,
+        quickFamily: FAMILY_PRESETS[o.quickFamily] ? o.quickFamily : undefined,
+        facts: { homes: one(f.homes, [0, 1]), firstTime: bool(f.firstTime), newborn2y: bool(f.newborn2y), dualIncome: bool(f.dualIncome),
+                 married: one(f.married, ['single', 'planned', 'within7', 'over7']), children: one(f.children, [0, 1, 2, 3]),
+                 otherDebtMonthly: n(f.otherDebtMonthly, 0, 100000) },
+        parent: { amount: n(p.amount, 0, 50), priorGift: n(p.priorGift, 0, 50), loanYears: n(p.loanYears, 1, 40),
+                  split: bool(p.split), marriageBirth: bool(p.marriageBirth), allowLoan: bool(p.allowLoan) },
+        profile: { family: one(pr.family, ['family4', 'family3', 'newlywed', 'single', 'senior']),
+                   childAge: one(pr.childAge, ['elem', 'infant', 'midhigh', 'none']),
+                   policy: one(pr.policy, ['multi_child', 'newborn', 'first_time', 'newlywed_loan', 'general']),
+                   facilities: Array.isArray(pr.facilities) ? pr.facilities.filter(x => typeof x === 'string' && /^fac_[a-z]+$/.test(x)) : undefined }
+      };
+      const clean = obj => Object.fromEntries(Object.entries(obj).filter(([, v]) => v !== undefined));
+      return { ...clean({ ...out, facts: undefined, parent: undefined, profile: undefined }), facts: clean(out.facts), parent: clean(out.parent), profile: clean(out.profile) };
+    }
+    function saveState() {
+      try { localStorage.setItem(SAVE_KEY, JSON.stringify(savedSnapshot())); } catch (e) { /* 사생활 보호 모드 등 */ }
+    }
+    function restoreState() {
+      let o = null, from = null;
+      if (location.hash.startsWith('#c=')) {
+        try {
+          const b64 = location.hash.slice(3).replace(/-/g, '+').replace(/_/g, '/');
+          o = JSON.parse(decodeURIComponent(escape(atob(b64))));
+          from = 'link';
+        } catch (e) { o = null; }
+        history.replaceState(null, '', location.pathname + location.search);  // 새로고침 때 내 수정이 덮이지 않게
+      }
+      if (!o) {
+        try { o = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null'); from = 'saved'; } catch (e) { o = null; }
+      }
+      const s = sanitizeSaved(o);
+      if (!s) return null;
+      ['seed', 'income', 'areaSize', 'closingDate', 'selectedId', 'quickFamily'].forEach(k => { if (s[k] !== undefined) state[k] = s[k]; });
+      Object.assign(state.facts, s.facts);
+      Object.assign(state.parent, s.parent);
+      Object.assign(state.profile, s.profile);
+      return from;
+    }
+    function shareLink() {
+      const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(savedSnapshot())))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+      return `${location.origin}${location.pathname}#c=${b64}`;
     }
 
     // ===== 상황별 자금 시뮬레이터 (policy.js) =====
@@ -3503,8 +3770,8 @@
           <tr class="hover:bg-slate-50 transition">
             <td class="py-2 px-2 text-[11px] text-slate-500">${tx.date}</td>
             <td class="py-2 px-2">
-              <div class="font-bold text-slate-900 flex items-center gap-1">${typeBadge} <span>${tx.apt}</span></div>
-              <div class="text-[10px] text-slate-400">${tx.dong} · 전용 ${tx.area}㎡ · ${tx.floor}층${tx.gbn ? ` · ${tx.gbn}` : ''}</div>
+              <div class="font-bold text-slate-900 flex items-center gap-1">${typeBadge} <span>${esc(tx.apt)}</span></div>
+              <div class="text-[10px] text-slate-400">${esc(tx.dong)} · 전용 ${esc(tx.area)}㎡ · ${esc(tx.floor)}층${tx.gbn ? ` · ${esc(tx.gbn)}` : ''}</div>
             </td>
             <td class="py-2 px-2 text-right font-bold text-slate-900">${tx.price.toFixed(2)}억</td>
             <td class="py-2 px-2 text-center">
@@ -3983,6 +4250,8 @@
       renderWizardDiagnostic();
       renderPolicyAndSafetyView(enriched, selected);
       renderScenarioSim(enriched, selected);
+      renderQuick(enriched);
+      saveState();
       renderBeginnerBest3Hero(enriched);
       renderDilemmaSolvers(enriched, selected);
     }
@@ -4412,6 +4681,12 @@
 
     function switchTab(tabName) {
       state.activeTab = tabName;
+      const vQuick = document.getElementById('viewQuick');
+      const bQuick = document.getElementById('tabBtnQuick');
+      ['topSummarySection', 'beginnerStepGuideBar'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.toggle('hidden', tabName === 'quick');
+      });
       const vLand = document.getElementById('viewLanding');
       const vRank = document.getElementById('viewRanking');
       const vPoli = document.getElementById('viewPolicy');
@@ -4430,10 +4705,11 @@
       const bGui = document.getElementById('tabBtnGuide');
       const bSaa = document.getElementById('tabBtnSaas');
       // 아래 className 재지정이 표시 여부 클래스(초보/관리자 모드)를 지우지 않도록 보관했다가 복원
-      const tabBtns = [bLand, bRank, bPoli, bMapT, bTran, bMat, bGui, bSaa];
+      const tabBtns = [bQuick, bLand, bRank, bPoli, bMapT, bTran, bMat, bGui, bSaa];
       const keepCls = tabBtns.map(b => ['expert-only-ui', 'admin-only', 'hidden'].filter(c => b.classList.contains(c)));
 
-      [vLand, vRank, vPoli, vMapT, vTran, vMat, vGui, vSaa].forEach(v => v.classList.add('hidden'));
+      [vQuick, vLand, vRank, vPoli, vMapT, vTran, vMat, vGui, vSaa].forEach(v => v.classList.add('hidden'));
+      bQuick.className = 'px-2 py-1.5 rounded-md text-amber-200 hover:text-white transition';
       [bRank, bMat, bGui].forEach(b => {
         b.className = 'px-2 py-1.5 rounded-md text-slate-300 hover:text-white transition';
       });
@@ -4443,12 +4719,16 @@
       bTran.className = 'px-2 py-1.5 rounded-md text-emerald-300 hover:text-white transition';
       bSaa.className = 'px-2 py-1.5 rounded-md text-amber-300 hover:text-white transition';
 
-      if (tabName === 'landing') {
+      if (tabName === 'quick') {
+        vQuick.classList.remove('hidden');
+        bQuick.className = 'px-2 py-1.5 rounded-md bg-amber-400 text-slate-950 font-bold transition';
+      } else if (tabName === 'landing') {
         vLand.classList.remove('hidden');
         bLand.className = 'px-2 py-1.5 rounded-md bg-indigo-600 text-white font-bold transition';
       } else if (tabName === 'ranking') {
         vRank.classList.remove('hidden');
         bRank.className = 'px-2 py-1.5 rounded-md bg-blue-600 text-white transition';
+        if (radarChartInstance) radarChartInstance.resize();  // 숨겨진 상태에서 만들어진 차트 크기 보정
       } else if (tabName === 'policy') {
         vPoli.classList.remove('hidden');
         bPoli.className = 'px-2 py-1.5 rounded-md bg-rose-600 text-white font-bold transition';
@@ -4483,7 +4763,7 @@
             const live = snap.regions[d.id];
             if (live) {
               d.sale84 = live.sale84; d.jeonse84 = live.jeonse84;
-              d.live = { n: live.sale84_n || 0, jn: live.jeonse84_n || 0, trend: live.trend, recent: live.recent || [], months: snap.months || [] };
+              d.live = { n: live.sale84_n || 0, jn: live.jeonse84_n || 0, trend: live.trend, recent: live.recent || [], complexes: live.complexes, months: snap.months || [] };
             }
           });
           const box = document.getElementById('qaSimOutputBox');
@@ -4505,7 +4785,9 @@
     }
 
     window.addEventListener('DOMContentLoaded', () => {
+      const restored = restoreState();
       document.querySelectorAll('.admin-only').forEach(el => el.classList.toggle('hidden', !IS_ADMIN));
+      initQuick(restored);
       loadLivePrices();
       loadLivePolicy();
       initScenarioSim();
@@ -4520,6 +4802,7 @@
       });
 
       // Tabs
+      document.getElementById('tabBtnQuick').addEventListener('click', () => switchTab('quick'));
       document.getElementById('tabBtnLanding').addEventListener('click', () => switchTab('landing'));
       document.getElementById('tabBtnRanking').addEventListener('click', () => switchTab('ranking'));
       document.getElementById('tabBtnPolicy').addEventListener('click', () => switchTab('policy'));

@@ -201,6 +201,7 @@ HOLD_DAYS = 3            # ±5% 급변이 3일 연속이면 실제 변화로 보
 MAIN_MONTHS = 3          # 대표 시세(중앙값)에 쓰는 최근 개월 수
 TREND_MONTHS = 6         # 화면 추이 그래프에 쓰는 개월 수 (API 호출은 이 개월 수 기준)
 RECENT_N = 8             # 화면에 보여줄 최근 거래 건수
+COMPLEX_MAX = 25         # 지역별로 저장할 단지 수 (거래 많은 순)
 
 
 def recent_months(today: date, n: int = 3) -> list[str]:
@@ -292,6 +293,22 @@ def trend_and_recent(trades: list[dict], rents: list[dict], months: list[str]) -
     return trend, rows[:RECENT_N]
 
 
+def complex_summary(trades: list[dict]) -> list[dict]:
+    """단지별 84㎡ 매매 중앙값(직거래·해제 제외, 조회 기간 전체). 거래 많은 순."""
+    groups: dict[tuple, list[dict]] = {}
+    for x in _valid_sales(trades):
+        groups.setdefault((x.get("aptNm", ""), x.get("umdNm", "")), []).append(x)
+    out = []
+    for (apt, dong), xs in groups.items():
+        last = max(xs, key=lambda x: (_ym(x), int(x.get("dealDay") or 0)))
+        ym = _ym(last)
+        out.append({"apt": apt, "dong": dong, "n": len(xs),
+                    "median": round(statistics.median(_manwon(x.get("dealAmount")) for x in xs) / 10000, 2),
+                    "last": f"{ym[:4]}-{ym[4:]}-{int(last.get('dealDay') or 1):02d}", "built": last.get("buildYear", "")})
+    out.sort(key=lambda c: (-c["n"], c["median"]))
+    return out[:COMPLEX_MAX]
+
+
 def apply_reading(region: dict, key: str, new: float | None, n: int) -> str:
     """한 지표(sale84/jeonse84)에 새 측정값 반영. 반환: ok / held / skip"""
     if new is None or n < MIN_SAMPLES:
@@ -326,6 +343,7 @@ def sync_live_prices(key: str, today: date, path: str = JSON_OUT_PATH, fetch=fet
             print(f"[WARN] {region['name']}: {e}")
             continue
         region["trend"], region["recent"] = trend_and_recent(trades, rents, months)
+        region["complexes"] = complex_summary(trades)
         sale, sale_n, jeonse, jeonse_n = summarize([t for t in trades if _ym(t) in main], [r for r in rents if _ym(r) in main])
         stats["trades"] += sale_n
         stats["rents"] += jeonse_n

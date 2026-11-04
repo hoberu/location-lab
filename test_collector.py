@@ -67,6 +67,9 @@ with tempfile.TemporaryDirectory() as tmp:
     rec = out["regions"]["a"]["recent"]
     assert len(rec) == c.RECENT_N and rec[0]["date"] == "2026-11-15" and rec[0]["price"] in (15.0, 8.0)
     assert "trend" not in out["regions"]["b"]  # 실패 지역은 건드리지 않음
+    cx = out["regions"]["a"]["complexes"]
+    assert len(cx) == 1 and cx[0]["n"] == 36 and cx[0]["median"] == 12.5  # 6개월 × 6건, 10억·15억 반반
+
 
     json.dump({"regions": {"b": snap["regions"]["b"]}}, open(path, "w", encoding="utf-8"))
     before = open(path, encoding="utf-8").read()
@@ -130,5 +133,14 @@ for v, prev in ((20.0, None), (7.0, {"value": 4.9})):
         raise AssertionError(f"금리 {v} 통과")
     except ValueError:
         pass
+
+# 단지별 집계: 직거래 제외, 거래 많은 순
+cs = c.complex_summary([
+    {**T("100,000"), "aptNm": "가", "umdNm": "동1", "dealYear": "2026", "dealMonth": "10", "dealDay": "3", "buildYear": "2010"},
+    {**T("120,000"), "aptNm": "가", "umdNm": "동1", "dealYear": "2026", "dealMonth": "11", "dealDay": "1", "buildYear": "2010"},
+    {**T("90,000"), "aptNm": "나", "umdNm": "동2", "dealYear": "2026", "dealMonth": "09", "dealDay": "9", "buildYear": "1999"},
+    {**T("50,000", gbn="직거래"), "aptNm": "나", "umdNm": "동2", "dealYear": "2026", "dealMonth": "09", "dealDay": "9"},
+])
+assert [(x["apt"], x["n"], x["median"], x["last"]) for x in cs] == [("가", 2, 11.0, "2026-11-01"), ("나", 1, 9.0, "2026-09-09")]
 
 print("test_collector OK")
