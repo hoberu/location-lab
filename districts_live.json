@@ -1,370 +1,302 @@
-[
-  {
-    "region_id": "seocho",
-    "lawd_cd": "11650",
-    "name": "서초구",
-    "scope": "seoul",
-    "tier": 1,
-    "sub_region": "서울 강남권",
-    "toheoje": true,
-    "sale_84_eok": 29.3,
-    "jeonse_84_eok": 13.5,
-    "jeonse_ratio_pct": 46.1,
-    "scores": {
-      "job": 96,
-      "edu": 98,
-      "prod": 98,
-      "infra": 97,
-      "future": 95
-    },
-    "living_score": 97.1,
-    "investment_score": 96.3,
-    "hotspots": "반포·잠원·서초·방배 / 래미안원베일리, 아크로리버파크",
-    "stepping_stone": "최종 종착지 (반포 한강변 신축)"
+{
+ "updated_at": null,
+ "months": [],
+ "regions": {
+  "seocho": {
+   "lawd_cd": "11650",
+   "name": "서초구",
+   "sale84": 29.3,
+   "jeonse84": 13.5,
+   "sale84_n": 0,
+   "jeonse84_n": 0
   },
-  {
-    "region_id": "gangnam",
-    "lawd_cd": "11680",
-    "name": "강남구",
-    "scope": "seoul",
-    "tier": 1,
-    "sub_region": "서울 강남권",
-    "toheoje": true,
-    "sale_84_eok": 28.6,
-    "jeonse_84_eok": 13.0,
-    "jeonse_ratio_pct": 45.5,
-    "scores": {
-      "job": 100,
-      "edu": 100,
-      "prod": 93,
-      "infra": 98,
-      "future": 98
-    },
-    "living_score": 97.8,
-    "investment_score": 98.4,
-    "hotspots": "압구정·대치·개포·삼성 / 개포자이프레지던스, 도곡렉슬",
-    "stepping_stone": "최종 종착지 (대치·압구정)"
+  "gangnam": {
+   "lawd_cd": "11680",
+   "name": "강남구",
+   "sale84": 28.6,
+   "jeonse84": 13.0,
+   "sale84_n": 0,
+   "jeonse84_n": 0
   },
-  {
-    "region_id": "songpa",
-    "lawd_cd": "11710",
-    "name": "송파구",
-    "scope": "seoul",
-    "tier": 1,
-    "sub_region": "서울 강남권",
-    "toheoje": true,
-    "sale_84_eok": 22.8,
-    "jeonse_84_eok": 10.6,
-    "jeonse_ratio_pct": 46.5,
-    "scores": {
-      "job": 94,
-      "edu": 91,
-      "prod": 92,
-      "infra": 96,
-      "future": 92
-    },
-    "living_score": 93.0,
-    "investment_score": 92.7,
-    "hotspots": "잠실·신천·문정·가락 / 엘스·리센츠·트리지움, 헬리오시티",
-    "stepping_stone": "징검다리: 마용성·분당 → 잠실 → 반포"
+  "songpa": {
+   "lawd_cd": "11710",
+   "name": "송파구",
+   "sale84": 22.8,
+   "jeonse84": 10.6,
+   "sale84_n": 0,
+   "jeonse84_n": 0
   },
-  {
-    "region_id": "yongsan",
-    "lawd_cd": "11170",
-    "name": "용산구",
-    "scope": "seoul",
-    "tier": 1,
-    "sub_region": "서울 도심·마용성",
-    "toheoje": true,
-    "sale_84_eok": 21.8,
-    "jeonse_84_eok": 9.6,
-    "jeonse_ratio_pct": 44.0,
-    "scores": {
-      "job": 95,
-      "edu": 78,
-      "prod": 88,
-      "infra": 93,
-      "future": 100
-    },
-    "living_score": 89.0,
-    "investment_score": 92.5,
-    "hotspots": "이촌·한남·한강로 / 한가람, 래미안첼리투스",
-    "stepping_stone": "징검다리: 마포·성동 → 용산 → 반포"
+  "yongsan": {
+   "lawd_cd": "11170",
+   "name": "용산구",
+   "sale84": 21.8,
+   "jeonse84": 9.6,
+   "sale84_n": 0,
+   "jeonse84_n": 0
   },
-  {
-    "region_id": "seongdong",
-    "lawd_cd": "11200",
-    "name": "성동구",
-    "scope": "seoul",
-    "tier": 2,
-    "sub_region": "서울 도심·마용성",
-    "toheoje": false,
-    "sale_84_eok": 19.5,
-    "jeonse_84_eok": 9.4,
-    "jeonse_ratio_pct": 48.2,
-    "scores": {
-      "job": 93,
-      "edu": 76,
-      "prod": 88,
-      "infra": 89,
-      "future": 93
-    },
-    "living_score": 86.9,
-    "investment_score": 88.7,
-    "hotspots": "성수·옥수·금호·왕십리 / 트리마제, 옥수파크힐스",
-    "stepping_stone": "징검다리: 동작·강동 → 성동 → 강남"
+  "seongdong": {
+   "lawd_cd": "11200",
+   "name": "성동구",
+   "sale84": 19.5,
+   "jeonse84": 9.4,
+   "sale84_n": 0,
+   "jeonse84_n": 0
   },
-  {
-    "region_id": "mapo",
-    "lawd_cd": "11440",
-    "name": "마포구",
-    "scope": "seoul",
-    "tier": 2,
-    "sub_region": "서울 도심·마용성",
-    "toheoje": false,
-    "sale_84_eok": 18.5,
-    "jeonse_84_eok": 9.2,
-    "jeonse_ratio_pct": 49.7,
-    "scores": {
-      "job": 92,
-      "edu": 80,
-      "prod": 89,
-      "infra": 88,
-      "future": 84
-    },
-    "living_score": 87.2,
-    "investment_score": 86.1,
-    "hotspots": "아현·공덕·용강(대흥)·상암 / 마포래미안푸르지오",
-    "stepping_stone": "징검다리: 서대문·은평 → 마포 → 용산"
+  "gwangjin": {
+   "lawd_cd": "11215",
+   "name": "광진구",
+   "sale84": 17.9,
+   "jeonse84": 8.8,
+   "sale84_n": 0,
+   "jeonse84_n": 0
   },
-  {
-    "region_id": "yangcheon",
-    "lawd_cd": "11470",
-    "name": "양천구",
-    "scope": "seoul",
-    "tier": 2,
-    "sub_region": "서울 서남권",
-    "toheoje": true,
-    "sale_84_eok": 17.6,
-    "jeonse_84_eok": 8.4,
-    "jeonse_ratio_pct": 47.7,
-    "scores": {
-      "job": 82,
-      "edu": 96,
-      "prod": 83,
-      "infra": 87,
-      "future": 94
-    },
-    "living_score": 87.1,
-    "investment_score": 89.6,
-    "hotspots": "목동·신정 / 목동신시가지 1~14단지",
-    "stepping_stone": "징검다리: 강서·광명 → 목동 → 반포·대치"
+  "mapo": {
+   "lawd_cd": "11440",
+   "name": "마포구",
+   "sale84": 18.5,
+   "jeonse84": 9.2,
+   "sale84_n": 0,
+   "jeonse84_n": 0
   },
-  {
-    "region_id": "dongjak",
-    "lawd_cd": "11590",
-    "name": "동작구",
-    "scope": "seoul",
-    "tier": 3,
-    "sub_region": "서울 강남권",
-    "toheoje": false,
-    "sale_84_eok": 16.4,
-    "jeonse_84_eok": 8.2,
-    "jeonse_ratio_pct": 50.0,
-    "scores": {
-      "job": 89,
-      "edu": 78,
-      "prod": 83,
-      "infra": 83,
-      "future": 89
-    },
-    "living_score": 83.8,
-    "investment_score": 85.6,
-    "hotspots": "흑석·노량진·사당 / 아크로리버하임, 흑석자이",
-    "stepping_stone": "징검다리: 관악·평촌 → 동작 → 서초"
+  "yangcheon": {
+   "lawd_cd": "11470",
+   "name": "양천구",
+   "sale84": 17.6,
+   "jeonse84": 8.4,
+   "sale84_n": 0,
+   "jeonse84_n": 0
   },
-  {
-    "region_id": "gangdong",
-    "lawd_cd": "11740",
-    "name": "강동구",
-    "scope": "seoul",
-    "tier": 3,
-    "sub_region": "서울 강남권",
-    "toheoje": false,
-    "sale_84_eok": 15.6,
-    "jeonse_84_eok": 7.8,
-    "jeonse_ratio_pct": 50.0,
-    "scores": {
-      "job": 83,
-      "edu": 84,
-      "prod": 91,
-      "infra": 86,
-      "future": 83
-    },
-    "living_score": 85.7,
-    "investment_score": 84.3,
-    "hotspots": "고덕·둔촌·명일 / 올림픽파크포레온, 고덕그라시움",
-    "stepping_stone": "징검다리: 하남·구리 → 강동 → 송파"
+  "yeongdeungpo": {
+   "lawd_cd": "11560",
+   "name": "영등포구",
+   "sale84": 15.8,
+   "jeonse84": 7.9,
+   "sale84_n": 0,
+   "jeonse84_n": 0
   },
-  {
-    "region_id": "nowon",
-    "lawd_cd": "11350",
-    "name": "노원구",
-    "scope": "seoul",
-    "tier": 5,
-    "sub_region": "서울 동북권",
-    "toheoje": false,
-    "sale_84_eok": 9.8,
-    "jeonse_84_eok": 5.3,
-    "jeonse_ratio_pct": 54.1,
-    "scores": {
-      "job": 68,
-      "edu": 89,
-      "prod": 72,
-      "infra": 81,
-      "future": 83
-    },
-    "living_score": 77.0,
-    "investment_score": 79.2,
-    "hotspots": "중계·상계·월계 / 중계건영3차, 포레나노원",
-    "stepping_stone": "징검다리: 도봉 → 노원 중계 → 동대문·성동"
+  "dongjak": {
+   "lawd_cd": "11590",
+   "name": "동작구",
+   "sale84": 16.4,
+   "jeonse84": 8.2,
+   "sale84_n": 0,
+   "jeonse84_n": 0
   },
-  {
-    "region_id": "gg_gwacheon",
-    "lawd_cd": "41290",
-    "name": "과천시 (경기)",
-    "scope": "gyeonggi",
-    "tier": 1,
-    "sub_region": "경기 최상급 (준강남)",
-    "toheoje": false,
-    "sale_84_eok": 23.5,
-    "jeonse_84_eok": 10.5,
-    "jeonse_ratio_pct": 44.7,
-    "scores": {
-      "job": 94,
-      "edu": 91,
-      "prod": 96,
-      "infra": 93,
-      "future": 95
-    },
-    "living_score": 93.7,
-    "investment_score": 93.8,
-    "hotspots": "원문·별양·중앙 / 과천푸르지오써밋, 과천자이",
-    "stepping_stone": "징검다리: 평촌·분당 → 과천 → 서초 반포"
+  "gangdong": {
+   "lawd_cd": "11740",
+   "name": "강동구",
+   "sale84": 15.6,
+   "jeonse84": 7.8,
+   "sale84_n": 0,
+   "jeonse84_n": 0
   },
-  {
-    "region_id": "gg_bundang",
-    "lawd_cd": "41135",
-    "name": "성남 분당·판교 (경기)",
-    "scope": "gyeonggi",
-    "tier": 1,
-    "sub_region": "경기 최상급 (경부축)",
-    "toheoje": false,
-    "sale_84_eok": 21.0,
-    "jeonse_84_eok": 10.2,
-    "jeonse_ratio_pct": 48.6,
-    "scores": {
-      "job": 98,
-      "edu": 95,
-      "prod": 90,
-      "infra": 95,
-      "future": 94
-    },
-    "living_score": 94.6,
-    "investment_score": 94.9,
-    "hotspots": "백현·삼평(판교)·수내·정자 / 판교알파리움, 파크뷰",
-    "stepping_stone": "징검다리: 수지·광교 → 분당·판교 → 강남"
+  "jung": {
+   "lawd_cd": "11140",
+   "name": "중구",
+   "sale84": 15.2,
+   "jeonse84": 7.7,
+   "sale84_n": 0,
+   "jeonse84_n": 0
   },
-  {
-    "region_id": "gg_gwanggyo",
-    "lawd_cd": "41117",
-    "name": "수원 영통·광교 (경기)",
-    "scope": "gyeonggi",
-    "tier": 2,
-    "sub_region": "경기 남부 핵심",
-    "toheoje": false,
-    "sale_84_eok": 14.8,
-    "jeonse_84_eok": 7.6,
-    "jeonse_ratio_pct": 51.4,
-    "scores": {
-      "job": 87,
-      "edu": 88,
-      "prod": 93,
-      "infra": 92,
-      "future": 85
-    },
-    "living_score": 89.4,
-    "investment_score": 87.6,
-    "hotspots": "이의·원천(광교)·망포 / 광교중흥에스클래스",
-    "stepping_stone": "징검다리: 동탄 → 광교신도시 → 분당·판교"
+  "jongno": {
+   "lawd_cd": "11110",
+   "name": "종로구",
+   "sale84": 15.4,
+   "jeonse84": 7.6,
+   "sale84_n": 0,
+   "jeonse84_n": 0
   },
-  {
-    "region_id": "gg_hanam",
-    "lawd_cd": "41450",
-    "name": "하남 미사·위례·감일 (경기)",
-    "scope": "gyeonggi",
-    "tier": 2,
-    "sub_region": "경기 동부 (강동·송파권)",
-    "toheoje": false,
-    "sale_84_eok": 13.8,
-    "jeonse_84_eok": 7.2,
-    "jeonse_ratio_pct": 52.2,
-    "scores": {
-      "job": 86,
-      "edu": 82,
-      "prod": 91,
-      "infra": 89,
-      "future": 88
-    },
-    "living_score": 86.8,
-    "investment_score": 86.7,
-    "hotspots": "망월·풍산(미사)·학암(위례) / 미사강변푸르지오",
-    "stepping_stone": "징검다리: 다산·구리 → 하남 미사 → 강동·송파"
+  "gangseo": {
+   "lawd_cd": "11500",
+   "name": "강서구",
+   "sale84": 12.6,
+   "jeonse84": 6.5,
+   "sale84_n": 0,
+   "jeonse84_n": 0
   },
-  {
-    "region_id": "gg_anyang",
-    "lawd_cd": "41173",
-    "name": "안양 동안·평촌 (경기)",
-    "scope": "gyeonggi",
-    "tier": 3,
-    "sub_region": "경기 남부 (과천·강남축)",
-    "toheoje": false,
-    "sale_84_eok": 12.8,
-    "jeonse_84_eok": 6.8,
-    "jeonse_ratio_pct": 53.1,
-    "scores": {
-      "job": 85,
-      "edu": 92,
-      "prod": 82,
-      "infra": 88,
-      "future": 89
-    },
-    "living_score": 86.7,
-    "investment_score": 87.8,
-    "hotspots": "비산·관양·평촌·호계 / 평촌자이아이파크, 인덕원역세권",
-    "stepping_stone": "징검다리: 산본·의왕 → 평촌 → 과천·분당"
+  "seodaemun": {
+   "lawd_cd": "11410",
+   "name": "서대문구",
+   "sale84": 12.4,
+   "jeonse84": 6.6,
+   "sale84_n": 0,
+   "jeonse84_n": 0
   },
-  {
-    "region_id": "gg_suji",
-    "lawd_cd": "41465",
-    "name": "용인 수지구 (경기)",
-    "scope": "gyeonggi",
-    "tier": 3,
-    "sub_region": "경기 남부 (신분당선축)",
-    "toheoje": false,
-    "sale_84_eok": 12.6,
-    "jeonse_84_eok": 6.9,
-    "jeonse_ratio_pct": 54.8,
-    "scores": {
-      "job": 88,
-      "edu": 87,
-      "prod": 81,
-      "infra": 85,
-      "future": 83
-    },
-    "living_score": 85.3,
-    "investment_score": 85.0,
-    "hotspots": "성복·풍덕천·동천 / 성복역롯데캐슬골드타운",
-    "stepping_stone": "징검다리: 기흥 → 용인 수지 → 분당·판교"
+  "dongdaemun": {
+   "lawd_cd": "11230",
+   "name": "동대문구",
+   "sale84": 12.2,
+   "jeonse84": 6.4,
+   "sale84_n": 0,
+   "jeonse84_n": 0
+  },
+  "seongbuk": {
+   "lawd_cd": "11290",
+   "name": "성북구",
+   "sale84": 11.4,
+   "jeonse84": 6.2,
+   "sale84_n": 0,
+   "jeonse84_n": 0
+  },
+  "gwanak": {
+   "lawd_cd": "11620",
+   "name": "관악구",
+   "sale84": 10.8,
+   "jeonse84": 5.8,
+   "sale84_n": 0,
+   "jeonse84_n": 0
+  },
+  "eunpyeong": {
+   "lawd_cd": "11380",
+   "name": "은평구",
+   "sale84": 10.6,
+   "jeonse84": 5.7,
+   "sale84_n": 0,
+   "jeonse84_n": 0
+  },
+  "nowon": {
+   "lawd_cd": "11350",
+   "name": "노원구",
+   "sale84": 9.8,
+   "jeonse84": 5.3,
+   "sale84_n": 0,
+   "jeonse84_n": 0
+  },
+  "guro": {
+   "lawd_cd": "11530",
+   "name": "구로구",
+   "sale84": 9.9,
+   "jeonse84": 5.5,
+   "sale84_n": 0,
+   "jeonse84_n": 0
+  },
+  "jungnang": {
+   "lawd_cd": "11260",
+   "name": "중랑구",
+   "sale84": 9.2,
+   "jeonse84": 5.1,
+   "sale84_n": 0,
+   "jeonse84_n": 0
+  },
+  "gangbuk": {
+   "lawd_cd": "11305",
+   "name": "강북구",
+   "sale84": 8.8,
+   "jeonse84": 4.9,
+   "sale84_n": 0,
+   "jeonse84_n": 0
+  },
+  "geumcheon": {
+   "lawd_cd": "11545",
+   "name": "금천구",
+   "sale84": 8.6,
+   "jeonse84": 4.8,
+   "sale84_n": 0,
+   "jeonse84_n": 0
+  },
+  "dobong": {
+   "lawd_cd": "11320",
+   "name": "도봉구",
+   "sale84": 8.3,
+   "jeonse84": 4.6,
+   "sale84_n": 0,
+   "jeonse84_n": 0
+  },
+  "gg_gwacheon": {
+   "lawd_cd": "41290",
+   "name": "과천시 (경기)",
+   "sale84": 23.5,
+   "jeonse84": 10.5,
+   "sale84_n": 0,
+   "jeonse84_n": 0
+  },
+  "gg_bundang": {
+   "lawd_cd": "41135",
+   "name": "성남 분당·판교 (경기)",
+   "sale84": 21.0,
+   "jeonse84": 10.2,
+   "sale84_n": 0,
+   "jeonse84_n": 0
+  },
+  "gg_gwanggyo": {
+   "lawd_cd": "41117",
+   "name": "수원 영통·광교 (경기)",
+   "sale84": 14.8,
+   "jeonse84": 7.6,
+   "sale84_n": 0,
+   "jeonse84_n": 0
+  },
+  "gg_hanam": {
+   "lawd_cd": "41450",
+   "name": "하남 미사·위례·감일 (경기)",
+   "sale84": 13.8,
+   "jeonse84": 7.2,
+   "sale84_n": 0,
+   "jeonse84_n": 0
+  },
+  "gg_gwangmyeong": {
+   "lawd_cd": "41210",
+   "name": "광명 철산·일직 (경기)",
+   "sale84": 13.2,
+   "jeonse84": 6.8,
+   "sale84_n": 0,
+   "jeonse84_n": 0
+  },
+  "gg_anyang": {
+   "lawd_cd": "41173",
+   "name": "안양 동안·평촌 (경기)",
+   "sale84": 12.8,
+   "jeonse84": 6.8,
+   "sale84_n": 0,
+   "jeonse84_n": 0
+  },
+  "gg_suji": {
+   "lawd_cd": "41465",
+   "name": "용인 수지구 (경기)",
+   "sale84": 12.6,
+   "jeonse84": 6.9,
+   "sale84_n": 0,
+   "jeonse84_n": 0
+  },
+  "gg_seongnam_old": {
+   "lawd_cd": "41131,41133",
+   "name": "성남 수정·중원 (경기)",
+   "sale84": 11.9,
+   "jeonse84": 6.2,
+   "sale84_n": 0,
+   "jeonse84_n": 0
+  },
+  "gg_dongtan": {
+   "lawd_cd": "41590",
+   "name": "화성 동탄2신도시 (경기)",
+   "sale84": 11.8,
+   "jeonse84": 6.0,
+   "sale84_n": 0,
+   "jeonse84_n": 0
+  },
+  "gg_guri": {
+   "lawd_cd": "41310",
+   "name": "구리 인창·갈매·수택 (경기)",
+   "sale84": 10.8,
+   "jeonse84": 5.9,
+   "sale84_n": 0,
+   "jeonse84_n": 0
+  },
+  "gg_dasan": {
+   "lawd_cd": "41360",
+   "name": "남양주 다산·별내 (경기)",
+   "sale84": 9.8,
+   "jeonse84": 5.5,
+   "sale84_n": 0,
+   "jeonse84_n": 0
+  },
+  "gg_goyang": {
+   "lawd_cd": "41281,41285,41287",
+   "name": "고양 일산·덕양 삼송/창릉 (경기)",
+   "sale84": 9.6,
+   "jeonse84": 5.4,
+   "sale84_n": 0,
+   "jeonse84_n": 0
   }
-]
+ }
+}

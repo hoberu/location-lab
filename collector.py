@@ -10,11 +10,13 @@ import json
 import os
 import shutil
 import sqlite3
+import statistics
+import sys
 import tempfile
 import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ET
-from datetime import datetime
+from datetime import date, datetime, timedelta, timezone
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "location_lab.db")
@@ -72,25 +74,6 @@ def open_sqlite_safe(target_path: str) -> tuple[sqlite3.Connection, str]:
     return conn, tmp_db
 
 
-
-
-def filter_outlier_transactions(trades: list[dict], prev_avg_eok: float) -> tuple[list[dict], int]:
-    """
-    [Rule 1] 직거래 및 이상치(±20% 초과 급등락) 자동 필터링
-    가족 간 증여성 직거래나 특수 거래로 인해 월평균 시세가 왜곡되는 것을 방지합니다.
-    """
-    valid_trades = []
-    removed_count = 0
-    for tx in trades:
-        if tx.get("deal_type") == "직거래":
-            removed_count += 1
-            continue
-        price = float(tx.get("price_eok", prev_avg_eok))
-        if prev_avg_eok > 0 and abs(price - prev_avg_eok) / prev_avg_eok > 0.20:
-            removed_count += 1
-            continue
-        valid_trades.append(tx)
-    return valid_trades, removed_count
 
 
 def validate_daily_delta_circuit_breaker(new_avg_eok: float, prev_avg_eok: float, max_daily_delta: float = 0.05) -> tuple[float, bool]:
@@ -189,7 +172,8 @@ def init_and_sync_db(deal_ymd: str = "202610") -> list[dict]:
     """)
     cur.execute("""
         INSERT INTO user_watchlists (user_id, lawd_cd, target_gap_eok, notify_news_flag)
-        VALUES ('demo_user_01', '11440', 8.5, 1)
+        SELECT 'demo_user_01', '11440', 8.5, 1
+        WHERE NOT EXISTS (SELECT 1 FROM user_watchlists WHERE user_id = 'demo_user_01' AND lawd_cd = '11440')
     """)
 
     # 배치 실행 로그 및 1회 수집 원가 기록 (1회 37개 지역 뉴스 AI 요약 토큰 원가 약 950원)
@@ -201,13 +185,122 @@ def init_and_sync_db(deal_ymd: str = "202610") -> list[dict]:
     conn.commit()
     conn.close()
     shutil.copy2(tmp_db, DB_PATH)
-
-    with open(JSON_OUT_PATH, "w", encoding="utf-8") as f:
-        json.dump(exported, f, ensure_ascii=False, indent=2)
-
     return exported
 
 
+# ---------------------------------------------------------------------------
+# 국토교통부 실거래가 Open API → districts_live.json (웹앱이 읽는 시세 스냅샷)
+# ---------------------------------------------------------------------------
+TRADE_URL = "https://apis.data.go.kr/1613000/RTMSDataSvcAptTradeDev/getRTMSDataSvcAptTradeDev"
+RENT_URL = "https://apis.data.go.kr/1613000/RTMSDataSvcAptRent/getRTMSDataSvcAptRent"
+KST = timezone(timedelta(hours=9))
+AREA_84 = (83.0, 85.0)   # 전용 84㎡형(국민평형)만 집계
+MIN_SAMPLES = 5          # 표본이 이보다 적으면 기존 값 유지
+HOLD_DAYS = 3            # ±5% 급변이 3일 연속이면 실제 변화로 보고 반영
+
+
+def recent_months(today: date, n: int = 3) -> list[str]:
+    """최근 n개월 계약년월(YYYYMM), 이번 달 포함. 신고 기한(30일) 때문에 최근 달은 표본이 적다."""
+    y, m, out = today.year, today.month, []
+    for _ in range(n):
+        out.append(f"{y}{m:02d}")
+        y, m = (y - 1, 12) if m == 1 else (y, m - 1)
+    return out
+
+
+def parse_items(raw: bytes) -> list[dict]:
+    root = ET.fromstring(raw)
+    code = root.findtext(".//resultCode") or root.findtext(".//returnReasonCode")
+    if code not in ("00", "000"):
+        msg = root.findtext(".//returnAuthMsg") or root.findtext(".//resultMsg") or root.findtext(".//errMsg")
+        raise RuntimeError(f"API 오류 {code}: {msg}")
+    return [{c.tag: (c.text or "").strip() for c in item} for item in root.iter("item")]
+
+
+def fetch_items(url: str, key: str, lawd_cd: str, ymd: str) -> list[dict]:
+    query = urllib.parse.urlencode({
+        "serviceKey": urllib.parse.unquote(key),  # 포털의 인코딩/디코딩 키 둘 다 허용
+        "LAWD_CD": lawd_cd, "DEAL_YMD": ymd, "pageNo": 1, "numOfRows": 9999,
+    })
+    with urllib.request.urlopen(f"{url}?{query}", timeout=30) as res:
+        return parse_items(res.read())
+
+
+def _manwon(text: str) -> float:
+    return float((text or "0").replace(",", ""))
+
+
+def _is_84(item: dict) -> bool:
+    try:
+        return AREA_84[0] <= float(item.get("excluUseAr") or 0) <= AREA_84[1]
+    except ValueError:
+        return False
+
+
+def summarize(trades: list[dict], rents: list[dict]) -> tuple:
+    """84㎡ 매매 중앙값(직거래·해제 제외), 84㎡ 신규 순수전세 중앙값. 단위: 억 원."""
+    sales = [_manwon(t.get("dealAmount")) for t in trades
+             if _is_84(t) and t.get("dealingGbn") != "직거래" and not t.get("cdealType")]
+    jeonse = [_manwon(r.get("deposit")) for r in rents
+              if _is_84(r) and _manwon(r.get("monthlyRent")) == 0 and r.get("contractType") != "갱신"]
+
+    def eok(v):
+        return round(statistics.median(v) / 10000, 1) if v else None
+    return eok(sales), len(sales), eok(jeonse), len(jeonse)
+
+
+def apply_reading(region: dict, key: str, new: float | None, n: int) -> str:
+    """한 지표(sale84/jeonse84)에 새 측정값 반영. 반환: ok / held / skip"""
+    if new is None or n < MIN_SAMPLES:
+        return "skip"
+    if region.get(f"{key}_n"):  # 이전 값도 실측이면 서킷브레이커 적용 (초기 기본값은 바로 교체)
+        _, blocked = validate_daily_delta_circuit_breaker(new, region[key])
+        held = region.get(f"{key}_held", 0)
+        if blocked and held < HOLD_DAYS - 1:
+            region[f"{key}_held"] = held + 1
+            return "held"
+    region[key], region[f"{key}_n"], region[f"{key}_held"] = new, n, 0
+    return "ok"
+
+
+def sync_live_prices(key: str, today: date, path: str = JSON_OUT_PATH, fetch=fetch_items) -> dict:
+    with open(path, encoding="utf-8") as f:
+        snap = json.load(f)
+    months = recent_months(today)
+    stats = {"ok": 0, "held": 0, "skip": 0, "errors": 0, "calls": 0, "trades": 0, "rents": 0}
+
+    for region in snap["regions"].values():
+        trades, rents = [], []
+        try:
+            for cd in region["lawd_cd"].split(","):  # 두 구에 걸친 권역은 "41281,41285"
+                for ymd in months:
+                    trades += fetch(TRADE_URL, key, cd, ymd)
+                    rents += fetch(RENT_URL, key, cd, ymd)
+                    stats["calls"] += 2
+        except Exception as e:  # 한 지역 실패는 기존 값 유지하고 계속
+            stats["errors"] += 1
+            print(f"[WARN] {region['name']}: {e}")
+            continue
+        sale, sale_n, jeonse, jeonse_n = summarize(trades, rents)
+        stats["trades"] += sale_n
+        stats["rents"] += jeonse_n
+        stats[apply_reading(region, "sale84", sale, sale_n)] += 1
+        stats[apply_reading(region, "jeonse84", jeonse, jeonse_n)] += 1
+
+    if stats["errors"] == len(snap["regions"]):
+        raise RuntimeError("모든 지역 API 호출 실패 — 스냅샷을 덮어쓰지 않음 (키 승인·트래픽 확인)")
+
+    snap.update(updated_at=datetime.now(KST).isoformat(timespec="minutes"), months=months, last_run=stats)
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(snap, f, ensure_ascii=False, indent=1)
+    return stats
+
+
 if __name__ == "__main__":
-    data = init_and_sync_db("202610")
-    print(f"[OK] 7대 테이블 SQLite DB({DB_PATH}) 및 뉴스·실거래 동기화 완료! (총 {len(data)}개 권역)")
+    sys.stdout.reconfigure(encoding="utf-8")  # Windows 콘솔(cp949/cp932) 한글 출력 오류 방지
+    api_key = os.environ.get("MOLIT_API_KEY", "").strip()
+    if not api_key:
+        print("[SKIP] MOLIT_API_KEY 미설정 — 기존 districts_live.json 유지")
+        sys.exit(0)
+    result = sync_live_prices(api_key, datetime.now(KST).date())
+    print(f"[OK] 실거래 동기화 완료: {result}")

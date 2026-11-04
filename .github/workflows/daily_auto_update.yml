@@ -1,0 +1,42 @@
+name: Daily MOLIT Price Sync
+
+on:
+  schedule:
+    - cron: '0 21 * * *'   # 매일 06:00 KST
+  workflow_dispatch:        # Actions 탭에서 수동 실행
+
+permissions:
+  contents: write
+  pages: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Self-check
+        run: python3 test_collector.py
+
+      - name: Collect MOLIT prices
+        env:
+          MOLIT_API_KEY: ${{ secrets.MOLIT_API_KEY }}
+        run: python3 collector.py
+
+      - name: Commit snapshot
+        run: |
+          git config user.name "LocationLab Auto-Operator Bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add districts_live.json
+          git diff --staged --quiet || git commit -m "chore(auto-sync): daily MOLIT price snapshot"
+          git push
+
+      # 봇(GITHUB_TOKEN) 푸시는 Pages 재배포를 안 일으킬 수 있어 직접 요청
+      - name: Request Pages rebuild
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api -X POST repos/${{ github.repository }}/pages/builds
