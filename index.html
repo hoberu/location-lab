@@ -44,6 +44,11 @@
     input[type="range"] {
       accent-color: #2563eb;
     }
+    /* 어두운 바 위 select(흰 글씨·투명 배경)는 펼친 목록이 흰 바탕에 흰 글씨가 됨 → 목록은 항상 흰 바탕·검은 글씨 */
+    select option, select optgroup {
+      color: #0f172a;
+      background-color: #ffffff;
+    }
     .map-node {
       transition: transform 0.18s ease, box-shadow 0.18s ease;
     }
