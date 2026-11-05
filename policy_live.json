@@ -1,5 +1,5 @@
 {
- "updated_at": "2026-11-04T16:00+09:00",
+ "updated_at": "2026-11-05T10:16+09:00",
  "items": {
   "bank_rate": {
    "value": 4.88,
@@ -7,7 +7,7 @@
    "period": "2026-09",
    "source": "한국은행 ECOS · 예금은행 주택담보대출 금리(신규취급액, 121Y006)",
    "url": "https://ecos.bok.or.kr",
-   "fetched": "2026-11-04"
+   "fetched": "2026-11-05"
   },
   "bogeumjari_rate": {
    "value": 5.2,
@@ -17,7 +17,7 @@
    "period": "2026-11-09",
    "source": "한국주택금융공사 · 아낌e보금자리론 고정금리(30년 대표)",
    "url": "https://www.hf.go.kr/ko/sub01/sub01_01_04.do",
-   "fetched": "2026-11-04"
+   "fetched": "2026-11-05"
   },
   "seoul_toheoje": {
    "value": true,
@@ -102,16 +102,16 @@
     },
     {
      "by": "국토교통부 장관",
-     "name": "공공주택지구 예정지 및 그 인근지역_서울시 신규 주택공급 후보지 발굴",
+     "name": "공공주택지구 예정지 및 그 인근지역",
      "since": "2026-08-13",
      "area": "2.8",
      "note": "하남감일2 공공주택지구_송파구 방이동·오금동 일대"
     }
    ],
-   "hash": "adb0458ca54e5f25",
+   "hash": "1e63319a49cf735e",
    "source": "서울부동산정보광장 · 토지거래허가구역 지정현황(서울시)",
    "url": "https://land.seoul.go.kr/land/other/appointStatusSeoul.do",
-   "fetched": "2026-11-04"
+   "fetched": "2026-11-05"
   }
  },
  "errors": {}
