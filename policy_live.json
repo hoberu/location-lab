@@ -1,5 +1,5 @@
 {
- "updated_at": "2026-11-10T12:08+09:00",
+ "updated_at": "2026-11-11T09:59+09:00",
  "items": {
   "bank_rate": {
    "value": 4.88,
@@ -7,7 +7,7 @@
    "period": "2026-09",
    "source": "한국은행 ECOS · 예금은행 주택담보대출 금리(신규취급액, 121Y006)",
    "url": "https://ecos.bok.or.kr",
-   "fetched": "2026-11-10"
+   "fetched": "2026-11-11"
   },
   "bogeumjari_rate": {
    "value": 5.2,
@@ -17,7 +17,7 @@
    "period": "2026-11-09",
    "source": "한국주택금융공사 · 아낌e보금자리론 고정금리(30년 대표)",
    "url": "https://www.hf.go.kr/ko/sub01/sub01_01_04.do",
-   "fetched": "2026-11-10"
+   "fetched": "2026-11-11"
   },
   "seoul_toheoje": {
    "value": true,
@@ -111,7 +111,7 @@
    "hash": "1e63319a49cf735e",
    "source": "서울부동산정보광장 · 토지거래허가구역 지정현황(서울시)",
    "url": "https://land.seoul.go.kr/land/other/appointStatusSeoul.do",
-   "fetched": "2026-11-10"
+   "fetched": "2026-11-11"
   }
  },
  "errors": {}
